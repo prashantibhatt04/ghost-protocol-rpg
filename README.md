@@ -23,7 +23,7 @@ Ghost Protocol is built on Microsoft Foundry:
 
 ## Demo Video
 
-> [Embed link — youtube.com/watch?v=TLBepKEEGp4&feature=youtu.be]
+> Link — https://youtu.be/TLBepKEEGp4
 
 ---
 
