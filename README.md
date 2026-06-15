@@ -23,7 +23,7 @@ Ghost Protocol is built on Microsoft Foundry:
 
 ## Demo Video
 
-> [Embed link — recording in progress]
+> [Embed link — youtube.com/watch?v=TLBepKEEGp4&feature=youtu.be]
 
 ---
 
@@ -34,8 +34,8 @@ Ghost Protocol is built on Microsoft Foundry:
                              │
                              ▼
                     ┌─────────────────┐
-                    │  Game Master     │
-                    │     (Ghost)      │
+                    │  Game Master    │
+                    │     (Ghost)     │
                     │                 │
                     │  1. Safety      │
                     │  2. IQ Query    │

@@ -8,23 +8,23 @@ Multi-agent cyberpunk heist RPG. Six Azure OpenAI agents, orchestrated in real t
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                   Player / Demo Script                       │
+│                   Player / Demo Script                      │
 │            (CLI  ·  Flask Web UI  ·  demo.py)               │
 └───────────────────────────┬─────────────────────────────────┘
                             │  plain-English action
                             ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                  GameMaster  (Ghost)                         │
+│                  GameMaster  (Ghost)                        │
 │                                                             │
-│   1. validate_input()     — content safety check           │
-│   2. query_knowledge()    — RAG-lite KB retrieval          │
-│   3. _route_to_agents()   — LLM-based routing decision     │
-│   4. specialist.call() ×N — parallel specialist calls      │
-│   5. synthesize()         — Ghost narrates the result      │
+│   1. validate_input()     — content safety check            │
+│   2. query_knowledge()    — RAG-lite KB retrieval           │
+│   3. _route_to_agents()   — LLM-based routing decision      │
+│   4. specialist.call() ×N — parallel specialist calls       │
+│   5. synthesize()         — Ghost narrates the result       │
 │                                                             │
 └──────┬───────────────────────────────────────────┬──────────┘
-       │ routes to 2–3 specialists                  │ synthesizes
-       ▼                                            ▼
+       │ routes to 2–3 specialists                 │ synthesizes
+       ▼                                           ▼
 ┌─────────────────────────────────┐   ┌─────────────────────┐
 │        Specialist Agents        │   │   Player-facing     │
 │                                 │   │   Narrative Output  │
@@ -75,7 +75,7 @@ Player action
     │
     ▼
 ┌─────────────────────────────────────────────────────────┐
-│  Stage 1 · Input Validation                              │
+│  Stage 1 · Input Validation                             │
 │  base_agent.validate_input()                            │
 │  • Length check (max 2,000 chars)                       │
 │  • Regex injection pattern scan (9 patterns)            │
@@ -85,7 +85,7 @@ Player action
                              │
                              ▼
 ┌─────────────────────────────────────────────────────────┐
-│  Stage 2 · Phase-Gate Check                              │
+│  Stage 2 · Phase-Gate Check                             │
 │  app.py pre-orchestrate guards                          │
 │  • If pending_confirmation flag is set: resolve the     │
 │    human-in-the-loop extraction gate (confirm/abort)    │
@@ -96,7 +96,7 @@ Player action
                              │
                              ▼
 ┌─────────────────────────────────────────────────────────┐
-│  Stage 3 · Non-Combatant Violence Check                  │
+│  Stage 3 · Non-Combatant Violence Check                 │
 │  game_master._detect_violence_against_noncombatant()    │
 │  • frozenset intersection: violence keywords ∩          │
 │    noncombatant descriptors                             │
@@ -119,9 +119,9 @@ Player action
                              │
                              ▼
 ┌─────────────────────────────────────────────────────────┐
-│  Stage 5 · Agent Routing                                 │
+│  Stage 5 · Agent Routing                                │
 │  game_master._route_to_agents()                         │
-│  • Sends routing prompt to GPT-4o (temp=0.2)           │
+│  • Sends routing prompt to GPT-4o (temp=0.2)            │
 │  • Model returns comma-separated specialist list        │
 │  • Validates against known agent names + phase rules    │
 │  • Enforces Vex rule: Execution phase only, ~50%        │
@@ -130,7 +130,7 @@ Player action
                              │
                              ▼
 ┌─────────────────────────────────────────────────────────┐
-│  Stage 6 · Specialist Calls                              │
+│  Stage 6 · Specialist Calls                             │
 │  specialist.call()  (one per routed agent)              │
 │  • Each agent receives: system_prompt + phase context   │
 │    + knowledge excerpt + conversation history (last 6)  │
@@ -140,7 +140,7 @@ Player action
                              │
                              ▼
 ┌─────────────────────────────────────────────────────────┐
-│  Stage 7 · Dice Roll (if needed)                         │
+│  Stage 7 · Dice Roll (if needed)                        │
 │  game_master.roll_dice()                                │
 │  • _detect_roll_needed() checks action keywords         │
 │  • raw = random.randint(1, 20) + roll_modifier          │
@@ -150,18 +150,17 @@ Player action
                              │
                              ▼
 ┌─────────────────────────────────────────────────────────┐
-│  Stage 8 · Narrative Synthesis                           │
+│  Stage 8 · Narrative Synthesis                          │
 │  game_master.call() — Ghost's final response            │
 │  • Receives: all specialist assessments + KB excerpt    │
 │    + phase + alert state + dice result                  │
 │  • Weaves assessments into atmospheric narration        │
-│  • [FOUNDRY IQ] tags mark KB-grounded sentences in UI  │
 │  • Ends with a decision point for the player            │
 └────────────────────────────┬────────────────────────────┘
                              │
                              ▼
 ┌─────────────────────────────────────────────────────────┐
-│  Stage 9 · World State Update                            │
+│  Stage 9 · World State Update                           │
 │  • GameState.add_turn() — persists turn to SQLite       │
 │  • Alert escalation check (_maybe_escalate_alert)       │
 │  • Vex trigger check (_maybe_flag_vex)                  │
