@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ghost Protocol — Telemetry</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Share+Tech&display=swap" rel="stylesheet">
+<style>
+/* ── Variables ──────────────────────────────────────────────────────────────── */
+:root {
+  --bg-0:    #0a0a0f;
+  --bg-1:    #0d0d18;
+  --bg-2:    #111120;
+  --bg-3:    #161628;
+  --bg-card: #0c0c1e;
+  --accent:  #00ff9f;
+  --danger:  #ff003c;
+  --info:    #00b4ff;
+  --ghost:   #00e5ff;
+  --wraith:  #ff4455;
+  --cipher:  #39ff88;
+  --shadow:  #cc44ff;
+  --patch:   #ffcc00;
+  --vex:     #ff6600;
+  --text-primary:   #c8d8e8;
+  --text-secondary: #667788;
+  --text-dim:       #334455;
+  --border:        rgba(0, 229, 255, 0.12);
+  --border-bright: rgba(0, 229, 255, 0.35);
+  --glow-sm: 0 0 6px rgba(0, 229, 255, 0.35);
+  --font-mono: 'Share Tech Mono', 'Courier New', monospace;
+  --font-ui:   'Share Tech', system-ui, sans-serif;
+  --radius: 4px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg-0);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent 2px, rgba(0,0,0,.04) 2px, rgba(0,0,0,.04) 4px);
+  pointer-events: none; z-index: 9999;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────────── */
+.dash-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 0 24px; height: 52px;
+  background: var(--bg-1);
+  border-bottom: 1px solid var(--border-bright);
+  box-shadow: var(--glow-sm);
+  position: sticky; top: 0; z-index: 100;
+}
+
+.dash-title {
+  font-size: 16px; letter-spacing: 4px;
+  color: var(--ghost); text-shadow: var(--glow-sm);
+  animation: glow-pulse 4s ease-in-out infinite;
+}
+
+.dash-sep { color: var(--text-dim); }
+
+.dash-sub {
+  font-size: 11px; color: var(--text-secondary); letter-spacing: 1px;
+}
+
+.dash-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+
+.back-link {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px;
+  color: var(--text-secondary); text-decoration: none;
+  border: 1px solid var(--text-dim); padding: 4px 12px; border-radius: var(--radius);
+  transition: .15s ease;
+}
+.back-link:hover { color: var(--ghost); border-color: var(--ghost); box-shadow: var(--glow-sm); }
+
+.refresh-btn {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px;
+  color: var(--accent); background: transparent;
+  border: 1px solid var(--accent); padding: 4px 12px; border-radius: var(--radius);
+  cursor: pointer; transition: .15s ease;
+}
+.refresh-btn:hover { background: rgba(0,255,159,.1); }
+
+.refresh-timer { font-size: 10px; color: var(--text-dim); }
+
+/* ── Layout ─────────────────────────────────────────────────────────────────── */
+.dash-body { padding: 24px; max-width: 1400px; margin: 0 auto; }
+
+.dash-section { margin-bottom: 40px; }
+
+.section-heading {
+  font-size: 11px; letter-spacing: 4px; color: var(--ghost);
+  text-shadow: var(--glow-sm); margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-bright);
+  display: flex; align-items: center; gap: 12px;
+}
+.section-heading::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(to right, var(--border-bright), transparent);
+}
+
+/* ── Cards ───────────────────────────────────────────────────────────────────── */
+.card-grid { display: grid; gap: 16px; }
+.card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.card-grid-4 { grid-template-columns: repeat(4, 1fr); }
+.card-grid-3 { grid-template-columns: repeat(3, 1fr); }
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.card-title {
+  font-size: 9px; letter-spacing: 3px; color: var(--text-dim);
+  text-transform: uppercase; margin-bottom: 14px;
+}
+
+/* ── Stat boxes ──────────────────────────────────────────────────────────────── */
+.stat-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.stat-label { font-size: 9px; letter-spacing: 2px; color: var(--text-dim); }
+.stat-value { font-size: 26px; color: var(--accent); letter-spacing: 2px; line-height: 1; }
+.stat-value.ghost  { color: var(--ghost); }
+.stat-value.danger { color: var(--danger); }
+.stat-value.warn   { color: var(--patch); }
+.stat-sub { font-size: 10px; color: var(--text-secondary); }
+
+.stat-grid { display: grid; gap: 12px; }
+.stat-grid-4 { grid-template-columns: repeat(4, 1fr); }
+.stat-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.stat-grid-2 { grid-template-columns: repeat(2, 1fr); }
+
+/* ── Chart canvases ─────────────────────────────────────────────────────────── */
+.chart-wrap { position: relative; }
+.chart-wrap.h-200 { height: 200px; }
+.chart-wrap.h-240 { height: 240px; }
+.chart-wrap.h-280 { height: 280px; }
+
+/* ── Tables ──────────────────────────────────────────────────────────────────── */
+.dash-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.dash-table th {
+  text-align: left; padding: 5px 10px;
+  font-size: 9px; letter-spacing: 2px; color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+}
+.dash-table td {
+  padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,.03);
+  color: var(--text-secondary);
+}
+.dash-table tr:last-child td { border-bottom: none; }
+.dash-table td.phase  { color: var(--accent); letter-spacing: 1px; text-transform: uppercase; }
+.dash-table td.alert-cold     { color: var(--text-dim); }
+.dash-table td.alert-warm     { color: var(--patch); }
+.dash-table td.alert-hot      { color: var(--vex); }
+.dash-table td.alert-scorched { color: var(--danger); }
+.dash-table td.mono { font-family: var(--font-mono); }
+.dash-table td.dim  { color: var(--text-dim); font-size: 10px; }
+.no-data { color: var(--text-dim); font-size: 11px; font-style: italic; padding: 8px 0; }
+
+/* ── Phase badge ─────────────────────────────────────────────────────────────── */
+.phase-badge {
+  display: inline-block; padding: 2px 10px;
+  border: 1px solid var(--ghost); color: var(--ghost);
+  font-size: 11px; letter-spacing: 2px; border-radius: var(--radius);
+  box-shadow: var(--glow-sm);
+}
+
+/* ── Alert dot ───────────────────────────────────────────────────────────────── */
+.alert-dot {
+  display: inline-block; width: 8px; height: 8px;
+  border-radius: 50%; margin-right: 6px;
+}
+.alert-dot.cold     { background: var(--text-dim); }
+.alert-dot.warm     { background: var(--patch); box-shadow: 0 0 5px var(--patch); }
+.alert-dot.hot      { background: var(--vex);   box-shadow: 0 0 8px var(--vex); }
+.alert-dot.scorched { background: var(--danger); box-shadow: 0 0 10px var(--danger); animation: blink .5s ease-in-out infinite; }
+
+/* ── Blocked list ────────────────────────────────────────────────────────────── */
+.blocked-item {
+  padding: 5px 10px; margin: 4px 0;
+  background: rgba(255,0,60,.06);
+  border-left: 2px solid var(--danger);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 11px; color: var(--text-secondary);
+}
+
+/* ── Recent IQ list ─────────────────────────────────────────────────────────── */
+.iq-item {
+  padding: 6px 10px; margin: 3px 0;
+  background: rgba(0,229,255,.03);
+  border-left: 1px solid var(--ghost);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 11px;
+}
+.iq-item-query { color: var(--text-secondary); font-style: italic; }
+.iq-item-meta  { color: var(--text-dim); font-size: 10px; margin-top: 2px; }
+
+/* ── Animations ─────────────────────────────────────────────────────────────── */
+@keyframes glow-pulse {
+  0%, 100% { text-shadow: 0 0 6px rgba(0,229,255,.4); }
+  50%       { text-shadow: 0 0 14px rgba(0,229,255,.7), 0 0 28px rgba(0,229,255,.3); }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; } 50% { opacity: .3; }
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .card-grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 700px) {
+  .card-grid-2, .card-grid-3, .card-grid-4 { grid-template-columns: 1fr; }
+  .stat-grid-4, .stat-grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────────────────── -->
+<header class="dash-header">
+  <span class="dash-title">GHOST PROTOCOL</span>
+  <span class="dash-sep">//</span>
+  <span class="dash-sub">TELEMETRY DASHBOARD</span>
+  <div class="dash-right">
+    <span class="refresh-timer" id="refreshTimer">Refresh in 30s</span>
+    <button class="refresh-btn" id="refreshBtn">↻ REFRESH</button>
+    <a class="back-link" href="/">← GAME</a>
+  </div>
+</header>
+
+<!-- ── Body ───────────────────────────────────────────────────────────────── -->
+<div class="dash-body">
+
+  <!-- ── Session Header ──────────────────────────────────────────────────── -->
+  <div style="display:flex;align-items:center;gap:20px;margin-bottom:24px;padding:12px 18px;background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius);">
+    <div>
+      <div style="font-size:9px;letter-spacing:2px;color:var(--text-dim)">MISSION</div>
+      <div id="hdrMission" style="color:var(--ghost);letter-spacing:2px;font-size:13px">—</div>
+    </div>
+    <div>
+      <div style="font-size:9px;letter-spacing:2px;color:var(--text-dim)">TURN</div>
+      <div id="hdrTurn" style="font-size:22px;color:var(--accent)">—</div>
+    </div>
+    <div>
+      <div style="font-size:9px;letter-spacing:2px;color:var(--text-dim)">PHASE</div>
+      <div id="hdrPhase">—</div>
+    </div>
+    <div>
+      <div style="font-size:9px;letter-spacing:2px;color:var(--text-dim)">ALERT</div>
+      <div id="hdrAlert">—</div>
+    </div>
+    <div style="margin-left:auto;font-size:10px;color:var(--text-dim)">
+      Session start: <span id="hdrStart">—</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 1: AGENT PERFORMANCE                                           -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="dash-section">
+    <div class="section-heading">// AGENT PERFORMANCE</div>
+
+    <div class="card-grid card-grid-4" style="margin-bottom:12px;">
+      <div class="card">
+        <div class="card-title">Total Calls</div>
+        <div class="chart-wrap h-200"><canvas id="chartCalls"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Avg Response Time (s)</div>
+        <div class="chart-wrap h-200"><canvas id="chartElapsed"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Tokens Used</div>
+        <div class="chart-wrap h-200"><canvas id="chartTokens"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Success Rate (%)</div>
+        <div class="chart-wrap h-200"><canvas id="chartSuccess"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Agent summary table -->
+    <div class="card">
+      <div class="card-title">Agent Summary</div>
+      <table class="dash-table" id="agentTable">
+        <thead>
+          <tr>
+            <th>AGENT</th><th>CALLS</th><th>AVG TIME</th>
+            <th>TOKENS</th><th>SUCCESS RATE</th>
+          </tr>
+        </thead>
+        <tbody id="agentTableBody">
+          <tr><td colspan="5" class="no-data">No agent data yet — play a turn to populate.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 2: FOUNDRY IQ METRICS                                          -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="dash-section">
+    <div class="section-heading">// FOUNDRY IQ — AZURE AI SEARCH</div>
+
+    <div class="stat-grid stat-grid-4" style="margin-bottom:16px;">
+      <div class="stat-box">
+        <div class="stat-label">TOTAL QUERIES</div>
+        <div class="stat-value ghost" id="iqTotal">0</div>
+        <div class="stat-sub">this session</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">AVG RETRIEVAL TIME</div>
+        <div class="stat-value" id="iqAvgMs">—</div>
+        <div class="stat-sub">milliseconds</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">FILES INDEXED</div>
+        <div class="stat-value ghost" id="iqFiles">8</div>
+        <div class="stat-sub">knowledge docs</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">UNIQUE FILES HIT</div>
+        <div class="stat-value" id="iqUniqueFiles">0</div>
+        <div class="stat-sub">distinct sources</div>
+      </div>
+    </div>
+
+    <div class="card-grid card-grid-2" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="card-title">Knowledge File Distribution</div>
+        <div class="chart-wrap h-240"><canvas id="chartIQFiles"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Top Query Terms</div>
+        <div class="chart-wrap h-240"><canvas id="chartIQTerms"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Recent Queries</div>
+      <div id="iqRecentList"><div class="no-data">No queries yet.</div></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 3: GAME METRICS                                                -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="dash-section">
+    <div class="section-heading">// GAME METRICS</div>
+
+    <div class="card-grid card-grid-3" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="card-title">Dice Outcomes</div>
+        <div class="chart-wrap h-240"><canvas id="chartDice"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Phase Progression</div>
+        <div id="phaseHistory">
+          <div class="no-data">No phase changes recorded.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Alert State History</div>
+        <div id="alertHistory">
+          <div class="no-data">No alert changes recorded.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Dice Roll Log</div>
+      <table class="dash-table">
+        <thead>
+          <tr><th>#</th><th>DIE</th><th>RESULT</th><th>OUTCOME</th></tr>
+        </thead>
+        <tbody id="diceTableBody">
+          <tr><td colspan="4" class="no-data">No dice rolls yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 4: SAFETY METRICS                                              -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="dash-section">
+    <div class="section-heading">// SAFETY METRICS</div>
+
+    <div class="stat-grid stat-grid-3" style="margin-bottom:16px;">
+      <div class="stat-box">
+        <div class="stat-label">INPUTS VALIDATED</div>
+        <div class="stat-value ghost" id="safetyValidated">0</div>
+        <div class="stat-sub">content safety checks passed</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">BLOCKED INPUTS</div>
+        <div class="stat-value danger" id="safetyBlocked">0</div>
+        <div class="stat-sub">injection / policy violations</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">OUTPUT SAFETY CHECKS</div>
+        <div class="stat-value" id="safetyOutputChecks">0</div>
+        <div class="stat-sub">post-generation scans</div>
+      </div>
+    </div>
+
+    <div class="card" id="blockedCard">
+      <div class="card-title">Blocked Input Log</div>
+      <div id="blockedList"><div class="no-data">No blocked inputs this session.</div></div>
+    </div>
+  </div>
+
+</div><!-- /dash-body -->
+
+<script>
+// ── Chart.js global defaults ──────────────────────────────────────────────────
+Chart.defaults.color            = '#667788';
+Chart.defaults.borderColor      = 'rgba(0, 229, 255, 0.08)';
+Chart.defaults.font.family      = "'Share Tech Mono', monospace";
+Chart.defaults.font.size        = 11;
+Chart.defaults.plugins.legend.display = false;
+
+const AGENT_PALETTE = {
+  Ghost:  'rgba(0, 229, 255, 0.8)',
+  Wraith: 'rgba(255, 68, 85, 0.8)',
+  Cipher: 'rgba(57, 255, 136, 0.8)',
+  Shadow: 'rgba(204, 68, 255, 0.8)',
+  Patch:  'rgba(255, 204, 0, 0.8)',
+  Vex:    'rgba(255, 102, 0, 0.8)',
+};
+const AGENT_PALETTE_DIM = {
+  Ghost:  'rgba(0, 229, 255, 0.25)',
+  Wraith: 'rgba(255, 68, 85, 0.25)',
+  Cipher: 'rgba(57, 255, 136, 0.25)',
+  Shadow: 'rgba(204, 68, 255, 0.25)',
+  Patch:  'rgba(255, 204, 0, 0.25)',
+  Vex:    'rgba(255, 102, 0, 0.25)',
+};
+
+const DICE_PALETTE = {
+  'CRITICAL SUCCESS': 'rgba(0, 229, 255, 0.85)',
+  'SUCCESS':          'rgba(57, 255, 136, 0.85)',
+  'PARTIAL SUCCESS':  'rgba(255, 204, 0, 0.85)',
+  'FAILURE':          'rgba(255, 0, 60, 0.85)',
+};
+
+const FILE_PALETTE = [
+  'rgba(0,229,255,.8)', 'rgba(57,255,136,.8)', 'rgba(204,68,255,.8)',
+  'rgba(255,204,0,.8)', 'rgba(255,68,85,.8)',  'rgba(255,102,0,.8)',
+  'rgba(0,180,255,.8)', 'rgba(0,255,159,.8)',
+];
+
+// ── Chart registry (for destroy/recreate) ─────────────────────────────────────
+const charts = {};
+
+function destroyChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
+// ── Horizontal bar factory ─────────────────────────────────────────────────────
+function makeHBar(id, labels, data, colors, unit = '') {
+  destroyChart(id);
+  const ctx = document.getElementById(id).getContext('2d');
+  charts[id] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: colors,
+        borderColor:      colors.map(c => c.replace('.8)', '1)')),
+        borderWidth: 1,
+        borderRadius: 3,
+      }],
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        tooltip: {
+          callbacks: { label: ctx => ` ${ctx.raw}${unit}` },
+        },
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(0,229,255,.06)' },
+          ticks: { color: '#667788' },
+        },
+        y: {
+          grid: { display: false },
+          ticks: { color: '#c8d8e8', font: { size: 11 } },
+        },
+      },
+    },
+  });
+}
+
+// ── Doughnut factory ─────────────────────────────────────────────────────────
+function makeDoughnut(id, labels, data, colors) {
+  destroyChart(id);
+  if (!data.some(v => v > 0)) return;
+  const ctx = document.getElementById(id).getContext('2d');
+  charts[id] = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: colors,
+        borderColor: '#0d0d18',
+        borderWidth: 2,
+        hoverBorderWidth: 3,
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '60%',
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom',
+          labels: { color: '#667788', boxWidth: 10, padding: 8, font: { size: 10 } },
+        },
+        tooltip: {
+          callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}` },
+        },
+      },
+    },
+  });
+}
+
+// ── Render helpers ─────────────────────────────────────────────────────────────
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); }
+
+function agentColor(name, dim = false) {
+  const capName = cap(name);
+  return dim ? (AGENT_PALETTE_DIM[capName] || 'rgba(100,130,150,.25)')
+             : (AGENT_PALETTE[capName] || 'rgba(100,130,150,.8)');
+}
+
+function renderAgentCharts(agents) {
+  const names   = Object.keys(agents);
+  const colors  = names.map(n => agentColor(n));
+  const colorsDim = names.map(n => agentColor(n, true));
+
+  if (!names.length) return;
+
+  makeHBar('chartCalls',   names, names.map(n => agents[n].calls),       colors);
+  makeHBar('chartElapsed', names, names.map(n => agents[n].avg_elapsed),  colors, 's');
+  makeHBar('chartTokens',  names, names.map(n => agents[n].tokens),       colors);
+  makeHBar('chartSuccess', names, names.map(n => agents[n].success_rate), colors, '%');
+
+  const tbody = document.getElementById('agentTableBody');
+  tbody.innerHTML = names.map(n => {
+    const a   = agents[n];
+    const cls = cap(n).toLowerCase();
+    const sr  = a.success_rate;
+    const srCls = sr >= 80 ? 'color:var(--cipher)' : sr >= 50 ? 'color:var(--patch)' : 'color:var(--danger)';
+    return `<tr>
+      <td style="color:var(--${cls});letter-spacing:1px">[${n.toUpperCase()}]</td>
+      <td>${a.calls}</td>
+      <td>${a.avg_elapsed}s</td>
+      <td>${a.tokens.toLocaleString()}</td>
+      <td style="${srCls}">${sr}%</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderIQSection(iq) {
+  document.getElementById('iqTotal').textContent   = iq.total_queries;
+  document.getElementById('iqAvgMs').textContent   = iq.avg_elapsed_ms ? `${iq.avg_elapsed_ms}ms` : '—';
+  document.getElementById('iqUniqueFiles').textContent = Object.keys(iq.file_hits).length;
+
+  // File hits doughnut
+  const fileNames = Object.keys(iq.file_hits);
+  const fileCounts = fileNames.map(f => iq.file_hits[f]);
+  makeDoughnut('chartIQFiles', fileNames, fileCounts, FILE_PALETTE.slice(0, fileNames.length));
+
+  // Top terms bar
+  if (iq.top_terms.length) {
+    const terms  = iq.top_terms.map(t => t[0]);
+    const counts = iq.top_terms.map(t => t[1]);
+    makeHBar('chartIQTerms', terms, counts, FILE_PALETTE.slice(0, terms.length));
+  }
+
+  // Recent queries
+  const list = document.getElementById('iqRecentList');
+  if (!iq.recent.length) {
+    list.innerHTML = '<div class="no-data">No queries yet.</div>';
+  } else {
+    list.innerHTML = [...iq.recent].reverse().map(q => `
+      <div class="iq-item">
+        <div class="iq-item-query">"${esc(q.query)}"</div>
+        <div class="iq-item-meta">
+          ${q.files.length ? q.files.map(f => `[IQ: ${f}]`).join(' · ') : 'no files matched'}
+          <span style="margin-left:8px">${q.elapsed_ms}ms</span>
+        </div>
+      </div>`).join('');
+  }
+}
+
+function renderGameSection(game) {
+  // Dice doughnut
+  const diceLabels  = Object.keys(DICE_PALETTE);
+  const diceCounts  = diceLabels.map(l => game.dice_summary[l] || 0);
+  const diceColors  = diceLabels.map(l => DICE_PALETTE[l]);
+  makeDoughnut('chartDice', diceLabels, diceCounts, diceColors);
+
+  // Phase history
+  const phDiv = document.getElementById('phaseHistory');
+  if (!game.phase_history.length) {
+    phDiv.innerHTML = '<div class="no-data">No phase changes yet.</div>';
+  } else {
+    phDiv.innerHTML = `<table class="dash-table">
+      <thead><tr><th>TIME</th><th>PHASE</th><th>TURN</th></tr></thead>
+      <tbody>${game.phase_history.map(p => `
+        <tr>
+          <td class="dim">${p.ts}</td>
+          <td class="phase">${p.phase.toUpperCase()}</td>
+          <td>${p.turn}</td>
+        </tr>`).join('')}
+      </tbody></table>`;
+  }
+
+  // Alert history
+  const alDiv = document.getElementById('alertHistory');
+  if (!game.alert_history.length) {
+    alDiv.innerHTML = '<div class="no-data">No alert changes yet.</div>';
+  } else {
+    alDiv.innerHTML = `<table class="dash-table">
+      <thead><tr><th>TIME</th><th>LEVEL</th><th>REASON</th></tr></thead>
+      <tbody>${game.alert_history.map(a => `
+        <tr>
+          <td class="dim">${a.ts}</td>
+          <td class="alert-${a.level}"><span class="alert-dot ${a.level}"></span>${a.level.toUpperCase()}</td>
+          <td class="dim">${esc(a.reason)}</td>
+        </tr>`).join('')}
+      </tbody></table>`;
+  }
+
+  // Dice table
+  const dtBody = document.getElementById('diceTableBody');
+  if (!game.dice_history.length) {
+    dtBody.innerHTML = '<tr><td colspan="4" class="no-data">No dice rolls yet.</td></tr>';
+  } else {
+    const outcomeColor = { 'CRITICAL SUCCESS': 'var(--ghost)', 'SUCCESS': 'var(--cipher)', 'PARTIAL SUCCESS': 'var(--patch)', 'FAILURE': 'var(--danger)' };
+    dtBody.innerHTML = [...game.dice_history].reverse().slice(0, 20).map((d, i) => `
+      <tr>
+        <td class="dim">${game.dice_history.length - i}</td>
+        <td>d${d.sides}</td>
+        <td style="font-size:16px;color:${outcomeColor[d.label] || 'inherit'}">${d.total}</td>
+        <td style="color:${outcomeColor[d.label] || 'inherit'};letter-spacing:1px">${d.label}</td>
+      </tr>`).join('');
+  }
+}
+
+function renderSafetySection(safety) {
+  document.getElementById('safetyValidated').textContent   = safety.inputs_validated;
+  document.getElementById('safetyBlocked').textContent     = safety.blocked_count;
+  document.getElementById('safetyOutputChecks').textContent = safety.output_checks;
+
+  const bList = document.getElementById('blockedList');
+  if (!safety.blocked_inputs.length) {
+    bList.innerHTML = '<div class="no-data">No blocked inputs this session.</div>';
+  } else {
+    bList.innerHTML = safety.blocked_inputs.map(b =>
+      `<div class="blocked-item">${esc(b)}</div>`
+    ).join('');
+  }
+}
+
+function renderHeader(data) {
+  document.getElementById('hdrMission').textContent = data.game.mission || '—';
+  document.getElementById('hdrTurn').textContent    = data.game.turn_count ?? '—';
+  document.getElementById('hdrPhase').innerHTML     = `<span class="phase-badge">${(data.game.current_phase || '').toUpperCase()}</span>`;
+  const alert = data.game.current_alert || 'cold';
+  document.getElementById('hdrAlert').innerHTML     = `<span class="alert-dot ${alert}"></span><span style="color:var(--text-secondary);font-size:12px">${alert.toUpperCase()}</span>`;
+  const start = data.session_start ? new Date(data.session_start).toLocaleTimeString() : '—';
+  document.getElementById('hdrStart').textContent  = start;
+}
+
+// ── Main fetch & render ────────────────────────────────────────────────────────
+async function loadMetrics() {
+  try {
+    const resp = await fetch('/api/metrics');
+    if (!resp.ok) throw new Error(resp.statusText);
+    const data = await resp.json();
+
+    renderHeader(data);
+    renderAgentCharts(data.agents || {});
+    renderIQSection(data.iq || {});
+    renderGameSection(data.game || {});
+    renderSafetySection(data.safety || {});
+  } catch (e) {
+    console.error('Metrics fetch failed:', e);
+  }
+}
+
+// ── Escape ────────────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ── Auto-refresh ──────────────────────────────────────────────────────────────
+let countdown = 30;
+let timer;
+
+function startCountdown() {
+  clearInterval(timer);
+  countdown = 30;
+  timer = setInterval(() => {
+    countdown--;
+    document.getElementById('refreshTimer').textContent = `Refresh in ${countdown}s`;
+    if (countdown <= 0) {
+      loadMetrics();
+      countdown = 30;
+    }
+  }, 1000);
+}
+
+document.getElementById('refreshBtn').addEventListener('click', () => {
+  loadMetrics();
+  startCountdown();
+});
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+loadMetrics();
+startCountdown();
+</script>
+</body>
+</html>

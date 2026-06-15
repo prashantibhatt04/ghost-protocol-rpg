@@ -1,0 +1,214 @@
+{
+  "session_id": 486,
+  "mission": "Operation GENESIS",
+  "phase": "complete",
+  "alert_state": "cold",
+  "turn_count": 7,
+  "crew_status": "All operational",
+  "crew_detail": {
+    "Cipher": {
+      "health_state": "operational",
+      "augment_damaged": false,
+      "notes": ""
+    },
+    "Ghost": {
+      "health_state": "operational",
+      "augment_damaged": false,
+      "notes": ""
+    },
+    "Patch": {
+      "health_state": "operational",
+      "augment_damaged": false,
+      "notes": ""
+    },
+    "Shadow": {
+      "health_state": "operational",
+      "augment_damaged": false,
+      "notes": ""
+    },
+    "Vex": {
+      "health_state": "operational",
+      "augment_damaged": false,
+      "notes": ""
+    },
+    "Wraith": {
+      "health_state": "operational",
+      "augment_damaged": false,
+      "notes": ""
+    }
+  },
+  "objectives": [
+    {
+      "key": "obj_recon_security",
+      "description": "Map Nexus Tower B-level security layout",
+      "phase": "recon",
+      "status": "complete"
+    },
+    {
+      "key": "obj_recon_argus",
+      "description": "Identify ARGUS-3 reboot window timing",
+      "phase": "recon",
+      "status": "complete"
+    },
+    {
+      "key": "obj_infiltrate_entry",
+      "description": "Enter Nexus Tower undetected via service bay",
+      "phase": "infiltration",
+      "status": "complete"
+    },
+    {
+      "key": "obj_infiltrate_b3",
+      "description": "Reach sub-level B3 without triggering alert",
+      "phase": "infiltration",
+      "status": "complete"
+    },
+    {
+      "key": "obj_exec_connect",
+      "description": "Connect intrusion deck to GenVault array",
+      "phase": "execution",
+      "status": "complete"
+    },
+    {
+      "key": "obj_exec_extract",
+      "description": "Complete 90-second GenVault data transfer",
+      "phase": "execution",
+      "status": "complete"
+    },
+    {
+      "key": "obj_extract_exit",
+      "description": "Exit Nexus Tower with data intact",
+      "phase": "extraction",
+      "status": "complete"
+    },
+    {
+      "key": "obj_extract_clean",
+      "description": "Reach extraction point before pursuit closes",
+      "phase": "extraction",
+      "status": "complete"
+    }
+  ],
+  "flags": {
+    "argus3_rebooting": "false",
+    "crew_compromised": "false",
+    "crew_loyalty": "100",
+    "crew_morale": "high",
+    "data_extracted": "false",
+    "genvault_connected": "false",
+    "marcus_okafor_seen": "false",
+    "mission_speed": "normal",
+    "patch_objected": "false",
+    "pending_confirmation": "false",
+    "vex_appeared": "true",
+    "vex_deal_taken": "false",
+    "vex_trusted": "false"
+  },
+  "requires_roll": false,
+  "roll_modifier": 0,
+  "history": [
+    {
+      "id": 2141,
+      "session_id": 486,
+      "turn_number": 1,
+      "phase": "recon",
+      "player_input": "Scan the Nexus Corp Tower exterior perimeter. Map guard rotations and identify every ARGUS-3 camera dead zone around the service bay entrance.",
+      "narrative": "Rain slides down the slick obsidian glass of Nexus Corp Tower under the monochrome glare of corporate skyboards. ARGUS-3 cameras pivot methodically, their infrared pulses slicing through the haze like searchlights. Two guards tread the service bay perimeter, their footsteps barely perceptible over the hum of nearby drone patrols. \n\nCipher's drone feed overlays the scene with glowing threat indicators. \"Alright,\" she says, her voice steady but charged with focus, \"camera dead zones confirmed: west gate-left corner overlap \u2014 eight seconds clean, shrinking to five if we misstep. Guard rotations match high-risk predictions. North circuit pause at ventilation intake \u2014 exploitable. South loop guard? Sharp, gear-tuned, carrying an EM disruptor keyed to augments. That one's your wildcard.\"\n\nShadow cuts in, voice low. \"Vent ledge for concealment\u2019s a backup move. Tight clearance, but it\u2019s there if south-loop shifts overlap. Main play is entry on east service during the :11 or :41 dead zone. Optical camo keeps us ghosted if timed right.\" There's a pause. \"If adrenaline\u2019s needed, we climb. Not ideal.\"\n\n[FOUNDRY IQ] The GenVault, housed in sub-level B2, holds a genomic map of 8 million identities \u2014 Toronto\u2019s most personal data, hidden beneath Nexus Tower\u2019s unyielding sprawl. Surveillance redundancy makes direct camera exploitation costly; secondary spoof protocols offer alternate options during the 03:00 reboot window. However, traces left could compromise the mission\u2019s stealth.\n\nThe night presses close as Cipher flags a choice. \u201cWe\u2019ve got two paths: finesse or flash. Either way, if south-loop disruptor gets curious, prep distractions now\u2014or we roll dice with the climb.\"\n\nA tension hums in the air as the perimeter drone shifts its sweep, the west gate window imminent. Eight seconds won\u2019t wait. \n\nWhat\u2019s the path forward, runner?",
+      "agents_consulted": [
+        "Cipher",
+        "Shadow"
+      ],
+      "dice_roll": null,
+      "alert_state": "cold",
+      "timestamp": "2026-06-14T16:34:42"
+    },
+    {
+      "id": 2142,
+      "session_id": 486,
+      "turn_number": 2,
+      "phase": "recon",
+      "player_input": "Access the Nexus Tower building management subnet and pinpoint the ARGUS-3 reboot window timing. We need the exact seconds.",
+      "narrative": "The wind stirs faint whispers through the rain-soaked cityscape as Nexus Tower looms ahead in stoic defiance. Shimmering pulses ripple from ARGUS-3 cameras mounted near the service bay\u2014a constant reminder of the clockwork vigilance guarding the tower\u2019s secrets. Across the network, the building management subnet hums quietly with activity, invisible frequencies churning like the heartbeat of a leviathan.\n\nCipher's voice cuts in, steady and deliberate. \"ARGUS-3 patches itself every four hours. Reboot window syncs at 03:00:00\u2014exactly 11 seconds of blackout before the system comes back online. I dug through the emergency lighting grid to find this cycle. The cooling interface has a backup exploit, if we need it. A temperature anomaly alert could buy us some breathing room.\"\n\nShadow adds, her tone methodical, \"ARGUS-3 controls everything\u2014motion sensors, cameras, environmental systems. During reboot, visuals and motion detection drop briefly out of sync. Thirty-four seconds, tops. I suggest an entry through the northwest janitorial airshaft on Floor 12. Cameras black out, and we\u2019ll hit the sub-level by the time reinitialization kicks in. But proximity pulsing is tight. Don\u2019t get closer than half a meter near those sensors.\"\n\nThe stakes settle like the weight of a loaded die in your palm. [FOUNDRY IQ] The GenVault index ties genomic profiles to identities\u2014nearly 8 million Toronto residents mapped in one database. Nexus guards it like the crown jewels for reasons you'll never hear in PR. Cipher\u2019s timing is critical; Shadow\u2019s plan, risky but sound. Eleven seconds to thread the needle\u2014or surrender your advantage entirely. \n\nYour window narrows every breath you waste. The question hangs in the rain.\n\nWhat\u2019s next, runner?\n\n---",
+      "agents_consulted": [
+        "Cipher",
+        "Shadow"
+      ],
+      "dice_roll": null,
+      "alert_state": "cold",
+      "timestamp": "2026-06-14T16:34:52"
+    },
+    {
+      "id": 2143,
+      "session_id": 486,
+      "turn_number": 3,
+      "phase": "infiltration",
+      "player_input": "Move through the service bay entrance. Shadow takes point, Cipher loops the badge reader, Wraith covers our six. We are inside before the next patrol.",
+      "narrative": "The rain grows heavier as the clock ticks toward 0200, droplets mingling with the low hum of distant traffic and the faint whir of ARGUS-3 cameras. Nexus Tower\u2019s service bay looms ahead, its automated forklifts beginning their rhythm of offloads. The air tastes faintly metallic, charged with the promise of danger\u2014and opportunity. \n\nShadow slips forward, her optical camouflage creating barely a ripple in the gloom. She hugs the wall, avoiding the linoleum pressure sensors embedded at deliberate intervals. [FOUNDRY IQ] Motion detectors hang at 1.8 meters, quiet for now, as the forklifts mask the subtle shifts in ambient heat her passage might cause. Wraith lingers behind, a shadow within a shadow, eyes scanning the perimeter for any deviation in patrol cycles. \n\nCipher\u2019s voice cuts through the comms, sharp and steady. [FOUNDRY IQ] \u201cApex SecureScan is cycling cache now. I\u2019m locking out second-layer verification. Badge spoofing in three, two\u2026\u201d A soft beep confirms success as the service door slides open noiselessly.  \n\nThe team slips inside just as the guard rounds the corner\u2014a near-miss, his boots splashing through the rain-slick pavement. The maintenance corridor stretches ahead, sterile and confined, lit by flickering overhead fluorescents. ARGUS-3 cameras sweep in hypnotic arcs, blind spots aligning perfectly with Shadow's route. [FOUNDRY IQ] At the corridor's junction, width narrows to 1.2 meters. Maneuverability will be limited, but the team moves with practiced precision. Every footfall is calculated.  \n\nThis is the moment. The air feels charged, heavy with the weight of a thousand decisions. Do you push forward down the corridor, or pause to assess the narrowing path? Risk recalibrated sensors or allow a patrol cycle to pass? Every choice chases its own ripples.",
+      "agents_consulted": [
+        "Shadow",
+        "Cipher",
+        "Wraith"
+      ],
+      "dice_roll": null,
+      "alert_state": "cold",
+      "timestamp": "2026-06-14T16:35:07"
+    },
+    {
+      "id": 2144,
+      "session_id": 486,
+      "turn_number": 4,
+      "phase": "infiltration",
+      "player_input": "Descend to sub-level B3 via the maintenance corridor. Stealth only \u2014 do not trigger the motion sensors or the pressure plates.",
+      "narrative": "The hum of Nexus Tower\u2019s infrastructure buzzes faintly through the maintenance corridor, a confined space of riveted steel walls lined with faint LED strips. The air feels cold and dense, each sound amplified by the narrow passage\u2019s acoustics. A faint vibration thrums beneath your boots, signaling the server farm deeper below. The smell of ozone and synthetic lubricant hangs thick.\n\nShadow\u2019s voice is steady: the eastern access hatch is clear. Pressure plates cluster in an irregular grid near the center of the corridor, calibrated to detect anything heavier than three kilograms. The left-hand wall offers a safe margin, but the precision needed for each step makes it unforgiving. Further out, the sensors will sweep: thermal-based, two-meter radius, four-second blind window. Cipher confirms he can loop the telemetry feed to mimic an empty corridor\u2014if the signal holds.\n\n[FOUNDRY IQ] Nexus\u2019s motion sensors leverage VARC-9 adaptive neural mesh. Cipher's BabelPatch deck can spoof room status and suppress real pings, but timing is key. Pressure plates run on dynamic matrices, likely tied to a local hub on B2. He\u2019ll calibrate the system to accept your weight, but needs 45 seconds to sync his false signature. Staying silent is non-negotiable; the corridor will amplify even the faintest slip. \n\nTiming matters. Shadow activates her optical camouflage as the clock ticks down to 23:18. The shift transition clears guards ahead for 45 seconds\u2014no margin for error. Failing stealth triggers Helix Apex protocols. Wraith reminds you of the emergency hatch within reach, two meters left, as your fallback escape. Her tone is firm but calm: \"We move clean or not at all.\"\n\nThe hatch slides open. Air rushes out like a hissed warning. The corridor stretches ahead. Just six meters to sub-level B3. \n\nWhat\u2019s the move, runner?",
+      "agents_consulted": [
+        "Shadow",
+        "Cipher"
+      ],
+      "dice_roll": null,
+      "alert_state": "cold",
+      "timestamp": "2026-06-14T16:35:18"
+    },
+    {
+      "id": 2145,
+      "session_id": 486,
+      "turn_number": 5,
+      "phase": "execution",
+      "player_input": "We are at the GenVault array. Cipher, connect the intrusion deck and initiate the data transfer. We have 90 seconds. Everyone hold position.",
+      "narrative": "The hum of the GenVault servers fills the silence as Vex's voice cuts through the comms \u2014 smooth, uninvited, and unmistakable. You pause, recalibrating. \"Vex is here. Hold position, everyone. The equation just shifted.\"",
+      "agents_consulted": [
+        "Cipher"
+      ],
+      "dice_roll": null,
+      "alert_state": "cold",
+      "timestamp": "2026-06-14T16:35:29"
+    },
+    {
+      "id": 2146,
+      "session_id": 486,
+      "turn_number": 6,
+      "phase": "execution",
+      "player_input": "Ignore the interference \u2014 Cipher, maintain the connection and finish the transfer. Wraith, hold the door. Ghost, we are not stopping.",
+      "narrative": "Rain forgotten, the world compresses to the sterile hum of the GenVault chamber. The air is dry, recycled for decades, tinged with the faint burn of high-capacity processing units. ARGUS-3 cameras remain inert; Cipher\u2019s uptime holds the reboot at bay for now. Shadow crouches near the pressure floor edge, her movements barely audible against the thrum of biodata servers. Wraith braces against the reinforced door, pulse weapon drawn, tension coiled like a spring. \n\nCipher\u2019s voice carries the surety of someone wrestling with the future itself. [FOUNDRY IQ] The 11-second reboot window at 0300 is confirmed, and the transfer is underway. However, GenVault\u2019s lattice encryption fights with quiet fury, slowing progress to a crawl. Time ticks forward\u201490 seconds remains your target, the data unraveling in stubborn segments. Shadow\u2019s complete bypass means the physical link is clean, but the optical cable reveals faint wear. Cipher\u2019s boosting the firmware; it\u2019s holding for now.\n\n[FOUNDRY IQ] Wraith calls it: two guards are inbound from the Undercroft corridor, armed with Axiom pulse rifles and stun grenades. They\u2019ll take the corridor choke point in seconds, and once there, options narrow fast. No civilians nearby, just their intent to suppress whoever steps into the crosshairs. Wraith suggests targeting pulse operators first; grenadier second. Friendly fire risks on their side give you leverage\u2014if the door holds.\n\nTime presses both forward and back. Cipher asks for the Undercroft readiness status while hinting at her nuclear option: locking GenVault\u2019s security AI for three minutes at the cost of full containment alarms. Extraction, flawless or fatal, would remain the endgame. But for now, the interference is manageable. \n\nDecision point: Let Wraith engage, hold the line, or escalate containment?",
+      "agents_consulted": [
+        "Cipher",
+        "Wraith"
+      ],
+      "dice_roll": null,
+      "alert_state": "cold",
+      "timestamp": "2026-06-14T16:35:46"
+    },
+    {
+      "id": 2147,
+      "session_id": 486,
+      "turn_number": 7,
+      "phase": "extraction",
+      "player_input": "Transfer complete. Move to roof access \u2014 elevator shaft three, service ladder to the landing pad. We have under four minutes before Nexus response teams breach the floor. Patch, keep Wraith moving.",
+      "narrative": "The elevator hums like a deep exhale, its shaft yawning upward into shadow. Heat from the server banks is replaced by a biting chill as the draft pulls from the roof access above. Red emergency lights paint the walls in harsh relief\u2014claustrophobic, urgent. Wraith braces against the door; his breathing is measured, focused, but a slight tension in his posture hints at the strain across his injured shoulder. \n\nPatch murmurs in your ear, tracking Nexus movement on the floor below. \u201cResponse team\u2019s entered corridor A. Drone activity ramping\u2014they\u2019ll deploy ahead of them.\u201d Shadow adjusts her gloves, her movements sharp and efficient. \u201cI can get the cameras by the ladder, but once they\u2019re here, it\u2019s blind trust. We\u2019ll need speed.\u201d\n\n[FOUNDRY IQ] Nexus breach teams use Q-Class weaponry, designed for precision. Any delay will reduce your options to static defense or surrender\u2014the latter is off the table. Wraith\u2019s assessment holds: the landing pad provides the cleanest line for extraction, but pace and cohesion are nonnegotiable. A failure here risks letting Nexus lock down the entire building.\n\nYou recall Vex\u2019s earlier offer\u2014an easy way out, strings attached\u2014but your crew held firm. Loyalty has its costs, just as it offers strength. Shadow moves ahead to disable the cameras, and Cipher signals green; the badge loop on the elevator access remains stable. For now. You make the call.",
+      "agents_consulted": [
+        "Wraith",
+        "Patch"
+      ],
+      "dice_roll": null,
+      "alert_state": "cold",
+      "timestamp": "2026-06-14T16:35:57"
+    }
+  ]
+}

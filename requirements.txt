@@ -1,0 +1,6 @@
+openai>=2.0.0
+python-dotenv>=1.0.0
+flask>=3.0.0
+azure-ai-projects>=2.0.0
+azure-identity>=1.19.0
+azure-search-documents>=11.4.0

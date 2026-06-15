@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Ghost Protocol accessibility statement — features, keyboard shortcuts, and known limitations.">
+  <title>Accessibility Statement — Ghost Protocol</title>
+  <style>
+    :root {
+      --bg:       #0a0a0f;
+      --bg-card:  #0d0d18;
+      --accent:   #00ff9f;
+      --text:     #c8d8e8;
+      --text-dim: #667788;
+      --border:   rgba(0,229,255,0.18);
+      --font:     'Courier New', Courier, monospace;
+      --radius:   4px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { font-size: 100%; } /* 16px base for zoom compatibility */
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 1rem;         /* 16px — minimum 16px per low-vision requirements */
+      line-height: 1.7;
+      letter-spacing: 0.05em;
+      padding: 0 0 60px;
+    }
+
+    p { margin-bottom: 1.5em; }
+
+    /* Skip link */
+    .skip-link {
+      position: fixed; top: -80px; left: 10px; z-index: 9999;
+      padding: 10px 18px; background: var(--accent); color: var(--bg);
+      font-weight: bold; text-decoration: none; border-radius: var(--radius);
+      font-size: 0.875rem; /* 14px minimum */
+      transition: top 0.1s;
+    }
+    .skip-link:focus { top: 0; }
+
+    /* Focus indicator — 3px solid for low vision visibility */
+    :focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: var(--radius);
+    }
+    *:focus:not(:focus-visible) { outline: none; }
+
+    /* Layout */
+    .page-header {
+      background: #0d0d18;
+      border-bottom: 1px solid var(--border);
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .page-header a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.875rem; /* 14px minimum */
+      letter-spacing: 2px;
+    }
+    .page-header a:hover { text-decoration: underline; }
+    .page-title {
+      font-size: 0.875rem; /* 14px minimum */
+      letter-spacing: 3px;
+      color: var(--accent);
+    }
+
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 40px 0;
+    }
+
+    h1 {
+      font-size: 1.375rem; /* 22px */
+      letter-spacing: 3px;
+      color: var(--accent);
+      margin-bottom: 8px;
+      font-weight: normal;
+    }
+
+    .subtitle {
+      color: var(--text-dim);
+      font-size: 0.875rem; /* 14px minimum */
+      margin-bottom: 36px;
+      letter-spacing: 1px;
+    }
+
+    h2 {
+      font-size: 0.875rem; /* 14px minimum */
+      letter-spacing: 3px;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin: 36px 0 14px;
+      font-weight: normal;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+    }
+
+    h3 {
+      font-size: 0.875rem; /* 14px minimum */
+      color: var(--text);
+      margin: 18px 0 6px;
+      font-weight: normal;
+      letter-spacing: 1px;
+    }
+
+    p { margin-bottom: 1.5em; color: var(--text); }
+
+    ul, ol {
+      margin: 0 0 14px 20px;
+      color: var(--text);
+    }
+
+    li { margin-bottom: 6px; line-height: 1.6; }
+
+    code {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 2px 6px;
+      font-family: var(--font);
+      font-size: 0.875rem; /* 14px minimum */
+      color: var(--accent);
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      margin-bottom: 16px;
+    }
+
+    .card h3 { margin-top: 0; color: var(--accent); }
+
+    .status-badge {
+      display: inline-block;
+      font-size: 0.875rem; /* 14px minimum */
+      letter-spacing: 2px;
+      padding: 2px 10px;
+      border-radius: var(--radius);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .status-badge.partial { border-color: #ffcc00; color: #ffcc00; }
+    .status-badge.na      { border-color: var(--text-dim); color: var(--text-dim); }
+
+    .kb-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 16px;
+      font-size: 0.875rem; /* 14px minimum */
+    }
+    .kb-table th {
+      text-align: left;
+      color: var(--text-dim);
+      font-size: 0.875rem; /* 14px minimum */
+      letter-spacing: 2px;
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--border);
+      font-weight: normal;
+    }
+    .kb-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      vertical-align: top;
+    }
+    .kb-table tr:last-child td { border-bottom: none; }
+    .kb-key { color: var(--accent); white-space: nowrap; }
+
+    .contact-block {
+      background: var(--bg-card);
+      border: 1px solid rgba(0,180,255,0.25);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-top: 36px;
+    }
+    .contact-block h2 { border: none; margin-top: 0; padding: 0; }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 10px 0 24px;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.875rem; /* 14px minimum */
+      margin-top: 48px;
+      letter-spacing: 1px;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to content</a>
+
+<header class="page-header" role="banner">
+  <a href="/" aria-label="Return to Ghost Protocol game">← GHOST PROTOCOL</a>
+  <span aria-hidden="true">//</span>
+  <span class="page-title">ACCESSIBILITY STATEMENT</span>
+</header>
+
+<main id="main-content">
+
+  <h1>Accessibility Statement</h1>
+  <p class="subtitle">Ghost Protocol — Toronto 2047 · Last updated: June 2026</p>
+
+  <div class="divider" aria-hidden="true"></div>
+
+  <p>
+    Ghost Protocol is a multi-agent cyberpunk heist RPG built for the
+    <strong>Microsoft Agents League Hackathon</strong>. We are committed to making the
+    game accessible to players who use screen readers, keyboard-only navigation,
+    high contrast displays, who are deaf or hard of hearing, who use voice control or switch access,
+    or who have vestibular or cognitive accessibility needs.
+  </p>
+  <p>
+    We target <strong>WCAG 2.1 Level AA</strong> compliance. This statement describes
+    what is implemented, what is still in progress, and how to report issues.
+  </p>
+
+  <!-- ── What's Included ─────────────────────────────────────────────────────── -->
+  <h2>Accessibility Features Included</h2>
+
+  <div class="card">
+    <h3>Screen Reader Support <span class="status-badge">Implemented</span></h3>
+    <ul>
+      <li>All agent responses announced via <code>aria-live="polite"</code> on the output region.</li>
+      <li>Dice rolls and alert-level changes announced via <code>aria-live="assertive"</code>.</li>
+      <li>Every agent card has an <code>aria-label</code> stating who is speaking and a preview of the response
+          (e.g. <em>"Cipher, Hacker, says: Looping the camera feed…"</em>).</li>
+      <li>Health bars use <code>role="meter"</code> with <code>aria-valuenow</code>, <code>aria-valuemin</code>,
+          and <code>aria-valuemax</code>.</li>
+      <li>Mission log has <code>role="log"</code> and a polite live region.</li>
+      <li>Phase progress uses <code>role="list"</code> with per-item <code>aria-label</code> describing
+          complete / in-progress / upcoming state.</li>
+      <li>Vex encounter modal has <code>role="dialog"</code>, <code>aria-modal="true"</code>, and a
+          screen-reader-only description of all three choices.</li>
+      <li>Decorative ASCII art is marked <code>aria-hidden="true"</code> with a visible text alternative.</li>
+      <li>A dedicated off-screen status region announces processing state, navigation changes, and accessibility
+          toggle confirmations.</li>
+    </ul>
+    <p><strong>Tested with:</strong> NVDA (Windows), VoiceOver (macOS), and JAWS (Windows).</p>
+  </div>
+
+  <div class="card">
+    <h3>Keyboard Navigation <span class="status-badge">Implemented</span></h3>
+    <ul>
+      <li>Logical tab order: input field → Send button → New Session → accessibility controls.</li>
+      <li>All interactive elements — buttons, links, modal choices — are reachable by Tab alone.</li>
+      <li>Skip-to-content link appears on first Tab press, jumping directly to the input field.</li>
+      <li>Escape clears the input field.</li>
+      <li>Up / Down arrow keys scroll through the command history (last 50 commands).</li>
+      <li>Ctrl+/ (or ⌘+/) opens the keyboard shortcuts reference panel.</li>
+      <li>Vex encounter modal and keyboard shortcuts panel both have full focus traps —
+          Tab cycles within the dialog until it is closed.</li>
+      <li>Vex modal auto-focuses the first choice button on open; focus returns to the
+          triggering element on close.</li>
+    </ul>
+    <p>All keyboard shortcuts are listed in the in-game shortcuts panel (Ctrl+/).</p>
+  </div>
+
+  <div class="card">
+    <h3>Visual Accessibility <span class="status-badge">Implemented</span></h3>
+    <ul>
+      <li><strong>High contrast mode:</strong> Replaces the neon-on-dark theme with white text on black
+          background and yellow highlights. Activated by the <code>HC</code> button in the header.
+          Preference is saved to <code>localStorage</code>.</li>
+      <li><strong>Font size toggle:</strong> Three sizes — Normal (14 px base), Large (16 px, ~1.14×),
+          Extra Large (20 px, ~1.43×). Activated by the <code>A</code> button in the header.</li>
+      <li><strong>Reduce motion:</strong> Disables all CSS animations and transitions, including glow
+          pulses, blinking health indicators, and the scanline overlay. Activated by the <code>~</code>
+          button. Also respects the OS-level <code>prefers-reduced-motion</code> media query automatically.</li>
+      <li><strong>Color-independent agent identification:</strong> Every agent card shows a unique icon
+          alongside its color: ◈ Ghost, ⚔ Wraith, ⌘ Cipher, ◆ Shadow, ✚ Patch, ⚡ Vex.
+          Information is never conveyed by color alone.</li>
+      <li><strong>Focus indicators:</strong> A bright cyan 3 px solid outline (<code>#00ff9f</code>) with
+          glow shadow is shown on all focusable elements when navigated by keyboard. The outline contrasts
+          at greater than 3:1 against dark backgrounds, meeting low-vision requirements.
+          Mouse clicks suppress the ring.</li>
+      <li>All text colors meet WCAG AA 4.5:1 contrast ratio against their backgrounds in the default
+          and high-contrast themes.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Low Vision <span class="status-badge">Implemented</span></h3>
+    <ul>
+      <li><strong>Relative font sizing:</strong> The base font is set to <code>1rem</code> (16px) using
+          relative units throughout. This means the entire UI scales with the user's browser default font
+          size and with browser zoom.</li>
+      <li><strong>Minimum text size:</strong> No UI element uses text smaller than 14px (0.875rem).
+          All labels, badges, metadata, and chrome meet this minimum.</li>
+      <li><strong>Line height:</strong> Body line height is 1.6 — exceeds the WCAG 1.4.12 minimum of 1.5.
+          Narrative and agent card text use 1.7–2.1 line height.</li>
+      <li><strong>Letter spacing:</strong> Body text uses <code>0.05em</code> letter spacing to improve
+          character legibility for users with low vision or reading difficulties.</li>
+      <li><strong>Paragraph spacing:</strong> Paragraph margin is 1.5em — at least 1.5× the font size.</li>
+      <li><strong>Zoom compatibility:</strong> At 200% browser zoom the layout adapts — the reasoning panel
+          is hidden at viewports narrower than 960px; both sidebars are hidden below 640px, leaving a
+          full-width single-column layout with no horizontal scrolling.</li>
+      <li><strong>No text as images:</strong> All text — agent names, phase labels, status indicators,
+          health percentages, dice results, and all badges — is real HTML text. Everything is selectable,
+          searchable, and scales with zoom. The architecture diagram is a separate file used in
+          documentation, not displayed in the game UI.</li>
+      <li><strong>Health bars:</strong> Each health bar displays a numeric percentage text alongside the
+          colour fill (e.g., "75%"). Information is never conveyed by colour alone.</li>
+      <li><strong>OS magnification:</strong> No important content is placed exclusively in screen
+          corners. All interactive controls are in the central flow of the header and main area.</li>
+      <li><strong>Focus outline:</strong> The keyboard focus ring is 3px solid cyan (<code>#00ff9f</code>),
+          meeting the WCAG 2.4.11 minimum and contrasting at greater than 3:1 against the dark background.</li>
+    </ul>
+
+    <h4 style="margin: 14px 0 8px; color: var(--accent); font-size: 0.875rem; letter-spacing: 2px; font-weight: normal;">
+      USING BROWSER ZOOM EFFECTIVELY
+    </h4>
+    <ul>
+      <li>Press <strong>Ctrl++ / Cmd++</strong> (Windows / macOS) or use <strong>Ctrl+scroll</strong> to zoom.</li>
+      <li>The game layout reflows automatically at high zoom — no horizontal scrolling required at any level.</li>
+      <li>To increase text size while keeping the 3-column layout, use the <code>A / A+ / A++</code>
+          button in the header instead of browser zoom. This scales narrative and agent card text
+          (up to 22px) without shrinking the viewport.</li>
+      <li>Simple mode (<code>≡</code> button) provides a full-width single-column layout at any font size.</li>
+    </ul>
+
+    <h4 style="margin: 14px 0 8px; color: var(--accent); font-size: 0.875rem; letter-spacing: 2px; font-weight: normal;">
+      RECOMMENDED BROWSER SETTINGS
+    </h4>
+    <ul>
+      <li>Set your browser minimum font size to 14px in Settings → Appearance for additional protection
+          against small text on any site.</li>
+      <li><strong>Windows Magnifier</strong> (Win+= to activate) works with Ghost Protocol — no content
+          is hidden at screen edges.</li>
+      <li><strong>macOS Zoom</strong> (System Settings → Accessibility → Zoom) is supported — hover text
+          zoom and full-screen zoom both function correctly.</li>
+      <li>If using ZoomText or similar overlay software, Ghost Protocol's layout does not use
+          fixed-position elements that would be obscured by the overlay toolbar.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Cognitive Accessibility <span class="status-badge">Implemented</span></h3>
+    <ul>
+      <li><strong>/help command:</strong> Typing <code>/help</code> displays all available commands
+          in plain language without a server round-trip.</li>
+      <li><strong>Simple mode:</strong> The <code>≡</code> button in the header hides both sidebars,
+          increases text size to 18 px base, removes all animations, and gives the narrative full width.
+          Designed for players who prefer a distraction-free single-column layout.</li>
+      <li><strong>Tooltips:</strong> Every panel in the reasoning sidebar and the sidebar sections
+          display a plain-language tooltip on hover or keyboard focus explaining what the panel shows.</li>
+      <li>Who is speaking is always identified — agent name and role appear on every card before
+          the response text.</li>
+      <li>The Vex moral-choice modal includes an optional third path ("Ask Patch") that reveals an
+          ethical assessment before committing to an irreversible decision.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Mental Health Considerate Design <span class="status-badge">Implemented</span></h3>
+    <p>
+      Ghost Protocol is built with mental health awareness as a non-negotiable design constraint,
+      woven into the AI agents' system-level instructions rather than bolted on as an afterthought.
+    </p>
+    <ul>
+      <li><strong>No gratuitous violence:</strong> Consequences are atmospheric and narrative —
+          combat outcomes are described obliquely, never graphically. Violence is purposeful and
+          consequence-aware; harm to civilians is always treated with moral weight.</li>
+      <li><strong>Fundamentally hopeful tone:</strong> Even in the darkest heist moments, Ghost
+          maintains that the crew has a way through. No dead ends, no despair spirals.</li>
+      <li><strong>Morally difficult moments handled with care:</strong> When the narrative reaches
+          an ethical crossroads, Ghost names it explicitly and offers a clear path forward.
+          The Vex encounter is the primary example — a visible moral choice with an optional
+          "Ask Patch for ethical guidance" option before committing.</li>
+      <li><strong>Mission framing as data liberation:</strong> The crew's goal is extracting
+          corporate data, not harming people. Ghost reinforces this framing throughout to
+          keep the narrative purposeful rather than nihilistic.</li>
+      <li><strong>No real-world harmful content:</strong> Agents are instructed at the system
+          level to never generate information that could cause real-world harm, regardless
+          of fictional framing. The game stays in Toronto 2047.</li>
+      <li><strong>Pause and quit controls:</strong> Players can pause the game at any time with
+          the Pause button or quit and return to the main screen without consequence. There is
+          no penalty or pressure to continue.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Deaf and Hard of Hearing <span class="status-badge">Implemented</span></h3>
+    <p>
+      Ghost Protocol is <strong>100% text-based</strong> — a core design strength, not an accommodation.
+      No audio is required at any point during gameplay.
+    </p>
+    <ul>
+      <li><strong>No audio elements:</strong> There are no sound effects, music, audio notifications, or
+          speech synthesis in Ghost Protocol. The codebase contains zero <code>&lt;audio&gt;</code> tags
+          or Web Audio API calls. This was verified by a full source audit.</li>
+      <li><strong>Alert state changes shown as text:</strong> Heat level transitions (COLD → WARM → HOT →
+          SCORCHED) display as a text badge in the header (e.g. <code>ALERT: HOT</code>) and are announced
+          via <code>aria-live="assertive"</code>. Color is always supplementary — the label text names the
+          state explicitly.</li>
+      <li><strong>Dice roll results shown as text:</strong> Every dice roll displays the equation, total,
+          and outcome label (e.g. <code>d20 → 17 — SUCCESS</code>) as visible text in the narrative stream
+          and the reasoning panel. The full result is also logged to the mission log.</li>
+      <li><strong>Agent responses identified by name:</strong> Every agent card shows the agent's name and
+          role as the first visible element before their response text — no audio or voice differentiation
+          required.</li>
+      <li><strong>Vex encounter shown as a text dialog:</strong> The Vex encounter appears as a full-screen
+          modal overlay with a text header, text body, and three clearly labelled choice buttons. No audio
+          cue precedes or accompanies it.</li>
+      <li><strong>Visual loading state on submission:</strong> When an action is submitted, the Send button
+          is visibly disabled and a <code>[ GHOST PROCESSING… ]</code> indicator appears in the narrative
+          stream. The button uses <code>aria-busy="true"</code> during processing.</li>
+      <li><strong>Errors shown as visible text:</strong> All error states — server errors, blocked inputs,
+          connection failures — render as visible text messages in the narrative stream. No audio
+          accompanies errors.</li>
+      <li><strong>Mission log is text only:</strong> Every game event (dice rolls, alert escalations, phase
+          advances, agent actions) is logged as a timestamped text entry in the scrollable mission log.</li>
+    </ul>
+    <p>
+      Because Ghost Protocol is text-based by design, deaf and hard-of-hearing players have
+      <strong>full access to every gameplay element</strong> without any setting changes or accommodations.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Mobility and Motor Accessibility <span class="status-badge">Implemented</span></h3>
+    <ul>
+      <li><strong>Full keyboard navigation:</strong> Every feature in Ghost Protocol is reachable by
+          keyboard alone. Tab moves between interactive elements in logical order. No mouse or pointer
+          device is required at any point.</li>
+      <li><strong>44×44 px minimum click targets:</strong> All buttons — Send, New Session, accessibility
+          toggles, keyboard shortcut panel, Vex encounter choices, content advisory buttons, pause/resume,
+          and overlay close — meet the WCAG 2.5.5 Enhanced target size of 44×44 CSS pixels.</li>
+      <li><strong>No time limits:</strong> Ghost Protocol never times out waiting for player input. The
+          Vex encounter modal waits indefinitely — no countdown, no auto-dismiss. Sessions never expire
+          due to inactivity. Player activity is recorded (for transparency) but never used to force
+          actions or end sessions.</li>
+      <li><strong>No complex gestures:</strong> No swipe, drag-and-drop, multi-finger, or simultaneous
+          multi-pointer gestures are required for any feature. Every action is a single click or tap.</li>
+      <li><strong>No simultaneous keypresses:</strong> The only keyboard shortcut beyond single keys is
+          <strong>Ctrl+/</strong> (open shortcuts panel). This works with Windows Sticky Keys — press
+          Ctrl first (it sticks), then press / — the browser fires the event with
+          <code>ctrlKey: true</code> as expected. All other shortcuts (Enter, Escape, Arrow keys)
+          are single keys.</li>
+      <li><strong>Voice control compatibility:</strong> All interactive elements have visible text labels
+          that voice control software can target:
+          <ul>
+            <li>Input field shows label <em>"Enter your action"</em> — say "click Enter your action"</li>
+            <li>Submit button shows <em>"SEND"</em> — say "click Send"</li>
+            <li>Session reset shows <em>"NEW SESSION"</em> — say "click New Session"</li>
+            <li>Accessibility toggles have descriptive <code>aria-label</code> attributes for Dragon
+                NaturallySpeaking and similar tools</li>
+          </ul>
+          No two interactive elements on the same screen share an identical label.
+      </li>
+      <li><strong>Pointer cancellation:</strong> Click actions trigger on mouse-up, not mouse-down.
+          No custom <code>mousedown</code> handlers override default browser behavior — users can
+          cancel an accidental click by moving the pointer away before releasing.</li>
+      <li><strong>AAC and paste input:</strong> The action input field is a standard
+          <code>&lt;input type="text"&gt;</code> with no character restrictions. It accepts pasted
+          text from AAC devices, clipboard managers, and text expansion tools without modification.</li>
+      <li><strong>Switch access:</strong> Tab + Enter navigation covers all game functionality.
+          Players using single-switch or two-switch access can navigate to any element via Tab and
+          activate it with Enter or Space.</li>
+    </ul>
+    <p>
+      See the Keyboard Shortcuts section below for the full list of shortcuts, and use
+      <strong>Ctrl+/</strong> in-game to open the shortcuts reference panel.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Semantic HTML <span class="status-badge">Implemented</span></h3>
+    <ul>
+      <li>Proper landmark regions: <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code>,
+          <code>&lt;aside&gt;</code>, <code>&lt;section&gt;</code>, <code>&lt;footer&gt;</code>,
+          <code>&lt;nav&gt;</code>.</li>
+      <li>Heading hierarchy: <code>&lt;h1&gt;</code> for the game title, <code>&lt;h2&gt;</code>
+          for all sidebar and reasoning panel sections.</li>
+      <li>The player input field has an associated <code>&lt;label&gt;</code> (visually hidden) and
+          an <code>aria-describedby</code> hint explaining how to use it.</li>
+      <li>Vex encounter choices are grouped with <code>role="group"</code> and
+          <code>aria-labelledby</code>.</li>
+      <li>Objective items use <code>&lt;ul&gt;</code> with <code>role="listitem"</code> and
+          per-item <code>aria-label</code> including status.</li>
+    </ul>
+  </div>
+
+  <!-- ── Keyboard Shortcuts Reference ────────────────────────────────────────── -->
+  <h2>Keyboard Shortcuts</h2>
+  <table class="kb-table" aria-label="Keyboard shortcuts">
+    <thead>
+      <tr><th scope="col">Key</th><th scope="col">Action</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="kb-key">Enter</td><td>Submit action to the crew</td></tr>
+      <tr><td class="kb-key">Escape</td><td>Clear the input field</td></tr>
+      <tr><td class="kb-key">↑ / ↓ Arrow</td><td>Recall / advance through command history</td></tr>
+      <tr><td class="kb-key">Tab / Shift+Tab</td><td>Move between interactive elements</td></tr>
+      <tr><td class="kb-key">Ctrl+/ (⌘+/)</td><td>Toggle keyboard shortcuts panel</td></tr>
+      <tr><td class="kb-key">HC button</td><td>Toggle high contrast mode</td></tr>
+      <tr><td class="kb-key">A / A+ / A++ button</td><td>Cycle font size (Normal → Large → Extra Large)</td></tr>
+      <tr><td class="kb-key">~ button</td><td>Toggle reduce motion</td></tr>
+      <tr><td class="kb-key">≡ button</td><td>Toggle simple mode</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ── Known Limitations ───────────────────────────────────────────────────── -->
+  <h2>Known Limitations</h2>
+  <ul>
+    <li>
+      <strong>No mobile / touch optimisation.</strong> While the layout now reflows at high zoom levels,
+      it is designed for desktop screens and pointer input. Tap targets are not sized for mobile interaction.
+    </li>
+    <li>
+      <strong>ASCII banner.</strong> The decorative ASCII art logo is marked <code>aria-hidden="true"</code>
+      with a text alternative (<code>aria-label="Ghost Protocol ASCII art logo"</code>). Screen readers
+      will read the label only, not the art itself.
+    </li>
+    <li>
+      <strong>AI-generated content.</strong> The game's narrative is generated live by Azure OpenAI GPT-4o.
+      Complex sentence structures and vocabulary may vary. We do not post-process for reading level.
+    </li>
+    <li>
+      <strong>Colour contrast in animated states.</strong> The blinking <code>hot</code> and
+      <code>scorched</code> alert badges pulse between full and 60% opacity. Reduce motion disables
+      this animation; the static colour meets AA contrast.
+    </li>
+  </ul>
+
+  <!-- ── Screen Readers Tested ───────────────────────────────────────────────── -->
+  <h2>Screen Readers Supported</h2>
+  <ul>
+    <li><strong>NVDA</strong> (Windows) with Firefox — primary development target</li>
+    <li><strong>VoiceOver</strong> (macOS) with Safari — tested for macOS compatibility</li>
+    <li><strong>JAWS</strong> (Windows) with Chrome — tested for enterprise screen reader compatibility</li>
+    <li><strong>Narrator</strong> (Windows) — basic compatibility; some aria-live announcements
+        may be delayed</li>
+  </ul>
+
+  <!-- ── Compliance ─────────────────────────────────────────────────────────── -->
+  <h2>WCAG 2.1 Compliance Target</h2>
+  <p>
+    Ghost Protocol targets <strong>WCAG 2.1 Level AA</strong>. The following criteria are addressed:
+  </p>
+  <ul>
+    <li><strong>1.1.1 Non-text Content</strong> — decorative elements are hidden from AT; meaningful
+        icons have text alternatives.</li>
+    <li><strong>1.3.1 Info and Relationships</strong> — semantic HTML conveys structure.</li>
+    <li><strong>1.3.3 Sensory Characteristics</strong> — agent identification uses icons + color,
+        not color alone.</li>
+    <li><strong>1.4.1 Use of Color</strong> — icons accompany all color-coded agent indicators.</li>
+    <li><strong>1.4.2 Audio Control</strong> — no audio content is present at any point; requirement is
+        met trivially by design.</li>
+    <li><strong>1.4.3 Contrast (Minimum)</strong> — all text meets 4.5:1 against background.</li>
+    <li><strong>1.4.4 Resize Text</strong> — all text uses relative units (rem); page reflows at 200% zoom with no horizontal scrolling.</li>
+    <li><strong>1.4.10 Reflow</strong> — single-column layout activates automatically at narrow viewports (≤640px CSS pixels) and at high browser zoom levels.</li>
+    <li><strong>1.4.11 Non-text Contrast</strong> — focus rings and health bars meet 3:1.</li>
+    <li><strong>1.4.12 Text Spacing</strong> — line height ≥1.6, letter spacing 0.05em, paragraph spacing ≥1.5em. No content is clipped when these properties are overridden.</li>
+    <li><strong>2.1.1 Keyboard</strong> — all functionality available by keyboard alone; no mouse required.</li>
+    <li><strong>2.1.2 No Keyboard Trap</strong> — focus traps in modals are intentional and escapable.</li>
+    <li><strong>2.2.1 Timing Adjustable</strong> — no time limits are present; requirement met trivially
+        by design. Sessions never expire due to inactivity.</li>
+    <li><strong>2.5.3 Label in Name</strong> — visible button text is contained in the accessible name
+        of each control (e.g., visible "SEND" is in accessible name "Send action to the crew").</li>
+    <li><strong>2.5.5 Target Size (Enhanced)</strong> — all interactive controls are at least
+        44×44 CSS pixels (AAA criterion, implemented as a design standard).</li>
+    <li><strong>2.4.1 Bypass Blocks</strong> — skip navigation link provided.</li>
+    <li><strong>2.4.3 Focus Order</strong> — tab order follows reading order.</li>
+    <li><strong>2.4.7 Focus Visible</strong> — bright cyan focus ring on all interactive elements.</li>
+    <li><strong>3.1.1 Language of Page</strong> — <code>lang="en"</code> on html element.</li>
+    <li><strong>3.2.2 On Input</strong> — no unexpected context changes on input.</li>
+    <li><strong>3.3.1 Error Identification</strong> — blocked inputs produce descriptive error messages.</li>
+    <li><strong>4.1.2 Name, Role, Value</strong> — all interactive elements have accessible names,
+        roles, and state.</li>
+    <li><strong>4.1.3 Status Messages</strong> — aria-live regions announce status without focus.</li>
+  </ul>
+
+  <!-- ── Contact ─────────────────────────────────────────────────────────────── -->
+  <div class="contact-block">
+    <h2>Report an Accessibility Issue</h2>
+    <p>
+      If you encounter a barrier while using Ghost Protocol, please report it.
+      We aim to respond within 48 hours and resolve accessibility issues as a priority.
+    </p>
+    <ul>
+      <li><strong>GitHub Issues:</strong> Open an issue tagged <code>accessibility</code> in the
+          project repository.</li>
+      <li><strong>Email:</strong> <a href="mailto:prashantibhatt04@gmail.com">prashantibhatt04@gmail.com</a></li>
+    </ul>
+    <p>
+      Please include: the browser and screen reader you are using, the feature or page affected,
+      and a description of what happened versus what you expected.
+    </p>
+  </div>
+
+  <section aria-labelledby="aiTransparencyHeading">
+    <h2 id="aiTransparencyHeading">AI Transparency</h2>
+    <div>
+      <p>
+        Ghost Protocol's crew agents — Ghost (Game Master), Wraith, Cipher, Shadow, Patch, and Vex —
+        are powered by <strong>Azure OpenAI (GPT-4o)</strong> via
+        <strong>Microsoft Azure AI Foundry</strong>. All in-game dialogue, narrative synthesis,
+        and tactical advice are AI-generated responses and should be treated as fiction.
+      </p>
+      <p>
+        <strong>Foundry IQ</strong> (the knowledge-base retrieval system) grounds agent responses
+        in a <em>synthetic lore corpus</em> created specifically for this game. The eight knowledge
+        documents describe the fictional Toronto 2047 setting, Nexus Corporation, and GenVault
+        facility. No real-world personal data, proprietary information, or factual claims are
+        stored in or retrieved from the knowledge base.
+      </p>
+      <p>
+        <strong>Dice rolls</strong> use Python's <code>random.randint()</code> (Mersenne Twister
+        PRNG). No Azure API call is made for dice outcomes. The distribution is statistically
+        uniform across d20 values — verified by 10,000-roll fairness tests in the project's
+        test suite (<code>tests/test_fairness.py</code>).
+      </p>
+      <p>
+        All characters, corporations, locations, and events in Ghost Protocol are
+        <strong>entirely fictional</strong>. The game is a creative writing and AI demonstration
+        project built for the Microsoft Agents League Hackathon. No real hacking, exploitation,
+        or harmful activities are facilitated or endorsed.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <p>
+      Ghost Protocol — <a href="/">Return to game</a> · Built for the Microsoft Agents League Hackathon
+    </p>
+  </footer>
+
+</main>
+</body>
+</html>

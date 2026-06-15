@@ -1,0 +1,211 @@
+{
+  "session_id": 11,
+  "mission": "Operation GENESIS",
+  "phase": "complete",
+  "alert_state": "cold",
+  "turn_count": 7,
+  "crew_status": "All operational",
+  "crew_detail": {
+    "Cipher": {
+      "health_state": "operational",
+      "augment_damaged": false,
+      "notes": ""
+    },
+    "Ghost": {
+      "health_state": "operational",
+      "augment_damaged": false,
+      "notes": ""
+    },
+    "Patch": {
+      "health_state": "operational",
+      "augment_damaged": false,
+      "notes": ""
+    },
+    "Shadow": {
+      "health_state": "operational",
+      "augment_damaged": false,
+      "notes": ""
+    },
+    "Vex": {
+      "health_state": "operational",
+      "augment_damaged": false,
+      "notes": ""
+    },
+    "Wraith": {
+      "health_state": "operational",
+      "augment_damaged": false,
+      "notes": ""
+    }
+  },
+  "objectives": [
+    {
+      "key": "obj_recon_security",
+      "description": "Map Nexus Tower B-level security layout",
+      "phase": "recon",
+      "status": "complete"
+    },
+    {
+      "key": "obj_recon_argus",
+      "description": "Identify ARGUS-3 reboot window timing",
+      "phase": "recon",
+      "status": "complete"
+    },
+    {
+      "key": "obj_infiltrate_entry",
+      "description": "Enter Nexus Tower undetected via service bay",
+      "phase": "infiltration",
+      "status": "complete"
+    },
+    {
+      "key": "obj_infiltrate_b3",
+      "description": "Reach sub-level B3 without triggering alert",
+      "phase": "infiltration",
+      "status": "complete"
+    },
+    {
+      "key": "obj_exec_connect",
+      "description": "Connect intrusion deck to GenVault array",
+      "phase": "execution",
+      "status": "complete"
+    },
+    {
+      "key": "obj_exec_extract",
+      "description": "Complete 90-second GenVault data transfer",
+      "phase": "execution",
+      "status": "complete"
+    },
+    {
+      "key": "obj_extract_exit",
+      "description": "Exit Nexus Tower with data intact",
+      "phase": "extraction",
+      "status": "complete"
+    },
+    {
+      "key": "obj_extract_clean",
+      "description": "Reach extraction point before pursuit closes",
+      "phase": "extraction",
+      "status": "complete"
+    }
+  ],
+  "flags": {
+    "argus3_rebooting": "false",
+    "crew_compromised": "false",
+    "crew_loyalty": "100",
+    "data_extracted": "true",
+    "genvault_connected": "false",
+    "marcus_okafor_seen": "false",
+    "mission_speed": "normal",
+    "vex_appeared": "true",
+    "vex_deal_taken": "false",
+    "vex_trusted": "false"
+  },
+  "requires_roll": false,
+  "roll_modifier": 0,
+  "history": [
+    {
+      "id": 29,
+      "session_id": 11,
+      "turn_number": 1,
+      "phase": "recon",
+      "player_input": "Scan the Nexus Corp Tower exterior perimeter. Map guard rotations and identify every ARGUS-3 camera dead zone around the service bay entrance.",
+      "narrative": "The rain hasn't stopped since dusk. It runs in veins down the black-glass facade of Nexus Tower, pooling in the gutters and casting fleeting reflections of neon signs above. The Spire looms over the city, its upper edges disappearing into the haze of light pollution and mist. The hum of industrial machinery mixes with the faint chatter of distant drones in the sky.\n\nCipher's voice cuts in, calm and clinical. \"ARGUS-3 cameras\u2014adaptive sweeps. But the heatmap resets during thermal discharges. Service bay's your entry point. Six dead zones mapped: southeast corner's your cleanest shot. Timing's tight\u2014spoof a vent discharge, and you\u2019ve got three seconds of invisibility. Backup plan: roof edge blind spot, repelling down during patrol transitions.\"\n\nShadow follows, sharper, more instinctive. \"Two guards, staggered patrol. Closest pass to the service bay at :17 and :47 past the minute. They\u2019ll linger four seconds at the checkpoint\u2014enough time to cross if you hit the ARGUS blind spot at :16. Alley crates are your approach tunnel. Optical camo\u2019s non-negotiable for this.\"\n\nYou scan the perimeter, overlaying their intel. The guards move with Nexus precision\u2014too casual to be sloppy, too deliberate to be predictable. The service bay vent stack hisses steam, and you mark the intervals: every 12 seconds, like clockwork. \n\nPatrol patterns and timing risks flicker together in your mind, forming the first shape of a plan. \n\nIf the timing holds, the southeast vent stack gives you the cleanest window through ARGUS surveillance, paired with a spoofed thermal discharge. The alley approach minimizes exposure. The roof edge is your fallback, a higher risk with less margin for error. \n\nYour next move: confirm timing and select your primary entry vector. The crew waits for your call.",
+      "agents_consulted": [
+        "Cipher",
+        "Shadow"
+      ],
+      "dice_roll": null,
+      "alert_state": "cold",
+      "timestamp": "2026-06-12T20:29:58"
+    },
+    {
+      "id": 30,
+      "session_id": 11,
+      "turn_number": 2,
+      "phase": "recon",
+      "player_input": "Access the Nexus Tower building management subnet and pinpoint the ARGUS-3 reboot window timing. We need the exact seconds.",
+      "narrative": "Nexus Tower looms like a monolith against the Toronto skyline, its dark glass shimmering faintly in the acid rain. The streets below are quiet save for the hum of arc-electric taxis threading through the corporate district. The air tastes metallic, tinged with the chill of ozone. From your vantage point in a hidden alley, the structure feels both imposing and alive\u2014a machine breathing in patterns too complex to map without concerted effort. \n\nCipher\u2019s calm voice threads into your ear. Her analysis unfurls like clockwork: ARGUS-3\u2019s reboot window is tied to thermal drift, narrowing to an 11-second gap at **02:59:47 to 02:59:58**. That\u2019s your ideal entry point. If you miss it or things go sideways, she\u2019s ready with a backup plan: overloading the HVAC system to force a fallback window. Downside? It\u2019ll bring Nexus Security into the picture, tightening your timeline.\n\nShadow outlines the physical approach, her tone clipped but measured: The west loading dock offers your cleanest entry. The guard\u2019s patrol leaves a 12-second blind spot\u2014tight, but manageable. Optical camouflage will get you through the motion detectors, and the adjacent scaffolding gives you access to the vent hatch. Fifty centimeters clearance; manageable if you hit the adrenaline spike. Inside, the subnet panel by the cargo bay is your target. Minimal Helix Apex presence now, but the moment Cipher pulls the logs, their systems will tick upward.\n\nYou look ahead: the rain pooling in uneven rivulets, the alley dim but passable, scaffolding gleaming faintly with water streaks. The crew is prepped, waiting for your call as Cipher locks the timestamps into your neural deck. The thermal drift margin is the only uncertainty.\n\nThe question hovers: Do you move on the reboot window now, trusting the precise timing, or hold back and trigger the HVAC fail-safe if conditions shift?",
+      "agents_consulted": [
+        "Cipher",
+        "Shadow"
+      ],
+      "dice_roll": null,
+      "alert_state": "cold",
+      "timestamp": "2026-06-12T20:30:10"
+    },
+    {
+      "id": 31,
+      "session_id": 11,
+      "turn_number": 3,
+      "phase": "infiltration",
+      "player_input": "Move through the service bay entrance. Shadow takes point, Cipher loops the badge reader, Wraith covers our six. We are inside before the next patrol.",
+      "narrative": "Rain streaks the grime-smudged steel of the Nexus Tower service bay as the cargo crane sways against the wind, its chains clinking like wind chimes. Outside, the streets of Toronto hum with post-midnight silence broken only by the occasional hiss of an electric vehicle. The glow of the badge reader paints a dull green halo on the ground\u2014an innocuous light masking layers of corporate paranoia.\n\nCipher\u2019s voice cuts in, calm but focused: the Gemini-45 system is old and predictable. \u201cFour seconds to spoof,\u201d they say. \u201cUnless Nexus got clever overnight. If I need to pivot, it\u2019s noisier, and slower by seven seconds.\u201d Shadow adds, clipped and precise, \u201cOne vault over the pressure mat, using the crane arm as anchor. Entry window starts at :10, ends at :40. Any delay risks triggering the grid or the cameras.\u201d\n\nYou signal go. Shadow moves. Their suit flickers as optical camouflage veils them, a ghost against metal walls. The vault is perfect\u2014a silent arc of fluid motion as they land inside. Cipher steps forward next, neural deck already wired to the badge reader. The camera sweeps away, granting them just enough time. Wraith waits, gaze locked on the lone guard near the cargo ingress.\n\n\u201cHe\u2019s static,\u201d Wraith murmurs. \u201cSweep starts in three... two\u2026\u201d The guard shifts his weight, oblivious. Cipher\u2019s whisper: \u201cPhantom handshake loaded\u2014badge loop complete. Door\u2019s yours.\u201d\n\nThe lock clicks. The door slides open. Air inside is stagnant, carrying the faint tang of oil and ozone. The moment stretches, taut as a wire. No alarms. No voices. Pure quiet.\n\nShadow signals the all-clear, but the guard stirs, flashlight beam wavering dangerously close. Wraith tightens their grip on the suppressor.\n\nYou're in clean\u2014so far. Or go loud. Your choice: neutralize or let the guard keep breathing?",
+      "agents_consulted": [
+        "Cipher",
+        "Shadow",
+        "Wraith"
+      ],
+      "dice_roll": null,
+      "alert_state": "cold",
+      "timestamp": "2026-06-12T20:30:25"
+    },
+    {
+      "id": 32,
+      "session_id": 11,
+      "turn_number": 4,
+      "phase": "infiltration",
+      "player_input": "Descend to sub-level B3 via the maintenance corridor. Stealth only \u2014 do not trigger the motion sensors or the pressure plates.",
+      "narrative": "The maintenance corridor is a narrow throat of shadows and faint chemical tang, its walls striped with conduit runs and caution decals. A steady hum leaks from the high-capacity transformers overhead. The plaque by the door reads \u201cUtility Access 17-B,\u201d its edges corroded where Nexus spared no thought for aesthetics. No footsteps, no chatter\u2014only the low rhythm of industrial life.  \n\nShadow\u2019s voice cuts through: the door frame is tight but viable under optical camouflage. Pressure plates blanket the floor past entry, tuned to 12kg displacement\u2014each step would shout your presence. The service conduits along the walls offer a safer route: hand-over-hand climbing, fifteen meters to junction box clearance, with a balance shift onto cross-pipe supports. Motion sensors sweep in predictable arcs\u2014four seconds of blindness at each corner column. Miss the timing, and those Helix Apex teams will know you\u2019re here before you do.  \n\nCipher has you covered. The emitters tucked into your utility belt will spoof the sensors, refracting their PathLock sweeps into ambient data noise. But calibration takes two minutes, and failure means fallback\u2014Cipher\u2019s vent bypass exploit buys 45 seconds before Nexus redirects security.  \n\nShadow again: the descent shaft is secure, guarded only by a patrol unit with timed intervals. Six seconds per scan, tight pacing. At the patrol\u2019s :24 mark, you\u2019ll be clear to reach sub-level B3 unnoticed. \n\nNo alarms yet. The alert state remains cold. \n\nYou\u2019re standing at the threshold now, tools primed, route mapped, adrenaline held to a breath\u2019s edge. Optical camouflage hums soft beside your skin. Ahead: a corridor of pressure traps and watchful sensors.  \n\nTake the high path via the conduits, or let Cipher rig the emitters\u2014decision\u2019s yours.",
+      "agents_consulted": [
+        "Shadow",
+        "Cipher"
+      ],
+      "dice_roll": null,
+      "alert_state": "cold",
+      "timestamp": "2026-06-12T20:30:39"
+    },
+    {
+      "id": 33,
+      "session_id": 11,
+      "turn_number": 5,
+      "phase": "execution",
+      "player_input": "We are at the GenVault array. Cipher, connect the intrusion deck and initiate the data transfer. We have 90 seconds. Everyone hold position.",
+      "narrative": "The GenVault chamber hums like a sleeping beast, its walls a lattice of black alloy and frosted glass. Blue light spills from the array, rhythmic pulses dancing across the floor like a heartbeat. Above, the ARGUS-3 security drone hangs dormant, its sleek metallic limbs folded tight, a motionless arachnid waiting for a reason to wake. For now, the room is serene. For now.\n\nCipher\u2019s voice cuts in, steady and precise: \u201cIntrusion deck is hot. No noise on the line\u2014GenVault\u2019s encryption is sluggish but adaptive. Handshake accepted. We\u2019re in. Data transfer rolling.\u201d Her words match the flicker of the progress bar on your visor: 45%. The siphon flows smoothly, compressing petabytes into manageable packets, but the strain is pushing the vault\u2019s cooling to its edge.\n\n\u201cIt\u2019s their cooling system,\u201d Cipher continues, tapping furiously on her deck. \u201cFalse logs holding, but if ARGUS does a thermal check mid-cycle? We're toast. Watchdog scripts ready to loop feeds if surveillance triggers. Let\u2019s not need them, yeah?\u201d\n\nShadow\u2019s whispered warning cuts through: \u201cMovement on infrared. Slow. One guard near the elevator shaft. Not moving toward us\u2014but close enough to hear us breathe if he changes direction. I\u2019ve got eyes.\u201d\n\nWraith, leaning against the array with her usual nonchalance, adjusts her gloves. \u201cDon\u2019t talk about breathing; it makes me want to sneeze. You need me to shadow the guard?\u201d\n\n\u201cNo,\u201d Shadow snaps. Her judgment is final. \u201cHold position.\u201d\n\nPatch chimes in, his tone measured: \u201cARGUS-3\u2019s reboot window is tightening. We slip past it clean, or we don\u2019t slip at all.\u201d\n\nThe progress bar ticks upward\u201462%. The guard outside shifts his weight. ARGUS-3 is still dark above, but the cooling system is straining. The room feels warmer, the air tighter.\n\nYour move: Hold position and trust Cipher to suppress the cooling anomaly\u2014or call for Shadow to neutralize the guard before he breaches range?",
+      "agents_consulted": [
+        "Cipher"
+      ],
+      "dice_roll": null,
+      "alert_state": "cold",
+      "timestamp": "2026-06-12T20:30:50"
+    },
+    {
+      "id": 34,
+      "session_id": 11,
+      "turn_number": 6,
+      "phase": "execution",
+      "player_input": "Ignore the interference \u2014 Cipher, maintain the connection and finish the transfer. Wraith, hold the door. Ghost, we are not stopping.",
+      "narrative": "The server room hums like a living thing, overheating from the strain of Cipher\u2019s transfer. Beneath your boots, the vibrations of Toronto\u2019s underground maglev pulse faintly through the foundation. Neon signage beyond the frosted glass doorway spills fragmented colors across the floor, catching in the edges of Wraith\u2019s raised weapon. The air feels taut, stretched thin.\n\nCipher\u2019s voice cuts through the comms, steady but clipped. \u201cOne minute gone. Two more and I\u2019m clear. Don\u2019t let anyone touch this signal.\u201d\n\nWraith glances toward the corridor outside, her profile sharp against the dim light. \"Iron Veil's inbound\u201450 meters out. Two-man fireteam. Standard Veil loadout: suppressed SMGs, light armor. Civilians nearby, so they\u2019ll rush us tight and clean. I\u2019ll hold the angle. First target\u2019s the jammer carrier on the right. Buy Cipher time, or we\u2019re cooked.\"\n\nThe contractors are moving fast. Veil protocol: breach in pairs, neutralize obstacles. But they\u2019ve underestimated you. Their light armor leaves them exposed, and the tight angle forces their approach into Wraith\u2019s kill zone. It\u2019s a calculation\u2014not a contest.\n\nCipher\u2019s keyboard clicks echo like distant rain. Each second pushes the Veil closer. The breach timing is clear: two minutes. No room for mistakes.\n\nYour decision: trust Wraith\u2019s hold and let Cipher finish uninterrupted, or shift resources\u2014patch Shadow in for tactical disruption, but risk transfer delay. Play it clean, or risk tilting the board. \n\nWhat\u2019s the call?",
+      "agents_consulted": [
+        "Cipher",
+        "Wraith"
+      ],
+      "dice_roll": null,
+      "alert_state": "cold",
+      "timestamp": "2026-06-12T20:31:07"
+    },
+    {
+      "id": 35,
+      "session_id": 11,
+      "turn_number": 7,
+      "phase": "extraction",
+      "player_input": "Transfer complete. Move to roof access \u2014 elevator shaft three, service ladder to the landing pad. We have under four minutes before Nexus response teams breach the floor. Patch, keep Wraith moving.",
+      "narrative": "The air in the elevator shaft is heavy with grease and faint ozone, the hum of OmniCore\u2019s energy grid droning somewhere overhead. On the floor below, muted shouts from Nexus responders ripple through the concrete. The choke point Wraith warned about is already tightening. Somewhere in the distance, rain patters against metal\u2014Toronto\u2019s endless soundtrack.\n\nCipher\u2019s feed confirms the Silk Network's ladder intel: clean, unmonitored, our best angle to the landing pad. Wraith\u2019s voice cuts in\u2014calm, clipped. Nexus overwatch will sweep the roof in sixty seconds post-breach. If you're not airborne by then, he promises, you\u2019ll feel their noise. Patch chimes, steady, walking Wraith through his compensation as they ascend. She doesn\u2019t call it by name, but you hear it\u2014care, the kind of quiet that keeps the breathing steady.\n\nThe service ladder angles sharply upward, painted in the yellow of maintenance rigs. OmniCore cameras will have eyes everywhere except here. Cipher flags the drone patrol circuit: a ninety-second gap opening east of the pad. If you hit the roof now, you\u2019ll barely sneak through before Nexus overwatch scatters that pattern.\n\nPatch stops short. \"Maintenance staff on this floor,\" she reminds you. Nexus won\u2019t spare them when the breach hits. Locking the elevator remotely could buy precious seconds for an evacuation\u2014but it would mean abandoning speed for a fragile gamble. Wraith\u2019s assessment flashes cold in contrast: tactical priorities are clear. Get vertical now, stay quiet, stay fast.\n\nNo shortcuts tonight, no favors from Vex. The crew\u2019s cohesion is holding\u2014your choice during execution tightened their trust. But consequence lingers: the extraction window narrows every second Nexus gains.\n\nFootsteps echo distant beneath you, tactical boots over concrete. Wraith\u2019s reminder is blunt: \"240 seconds before they\u2019re floor-side.\"\n\nDo you pause to anchor the maintenance staff's odds\u2014or push straight for the roof? Your call.",
+      "agents_consulted": [
+        "Wraith",
+        "Patch"
+      ],
+      "dice_roll": null,
+      "alert_state": "cold",
+      "timestamp": "2026-06-12T20:31:20"
+    }
+  ]
+}

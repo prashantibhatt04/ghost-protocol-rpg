@@ -1,0 +1,2860 @@
+/* Ghost Protocol — Cyberpunk UI v2 */
+
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Share+Tech&display=swap');
+
+/* ── Custom Properties ─────────────────────────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --bg-0:    #0a0a0f;
+  --bg-1:    #0d0d18;
+  --bg-2:    #111120;
+  --bg-3:    #161628;
+  --bg-card: #0c0c1e;
+
+  /* Spec accent palette */
+  --accent: #00ff9f;   /* neon green  */
+  --danger: #ff003c;   /* neon red    */
+  --info:   #00b4ff;   /* neon blue   */
+
+  /* Agent identity colours */
+  --ghost:  #00ff9f;
+  --wraith: #ff003c;
+  --cipher: #00ff00;
+  --shadow: #b400ff;
+  --patch:  #ffd700;
+  --vex:    #ff9f00;
+
+  /* Text */
+  --text-primary:   #c8d8e8;
+  --text-secondary: #667788;
+  --text-dim:       #334455;
+
+  /* Alert levels */
+  --alert-cold:     #334455;
+  --alert-warm:     #ff9900;
+  --alert-hot:      #ff4400;
+  --alert-scorched: #ff1111;
+
+  /* Borders / glows */
+  --border:        rgba(0, 229, 255, 0.12);
+  --border-bright: rgba(0, 229, 255, 0.35);
+  --glow-sm: 0 0 6px rgba(0, 229, 255, 0.35);
+  --glow-md: 0 0 12px rgba(0, 229, 255, 0.4), 0 0 28px rgba(0, 229, 255, 0.15);
+
+  /* Typography */
+  --font-mono: 'Share Tech Mono', 'Courier New', Courier, monospace;
+  --font-ui:   'Share Tech', system-ui, sans-serif;
+
+  /* Layout — rem units so dimensions scale with user's base font size */
+  --sidebar-w: 13.75rem;   /* 220px at 16px base */
+  --rp-w:      17.625rem;  /* 282px at 16px base */
+  --header-h:  3.25rem;    /* 52px at 16px base */
+  --input-h:   3.875rem;   /* 62px at 16px base */
+  --log-h:     11.5625rem; /* 185px at 16px base */
+  --radius:    0.25rem;    /* 4px */
+  --transition: 0.15s ease;
+}
+
+/* ── Reset ─────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 100%; } /* 16px base — required for rem zoom compatibility */
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  background: var(--bg-0);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 1rem;       /* 16px — minimum 16px per low-vision requirements */
+  line-height: 1.6;      /* exceeds WCAG minimum of 1.5 */
+  letter-spacing: 0.05em; /* improves character legibility for low vision */
+}
+
+p { margin-bottom: 1.5em; } /* paragraph spacing ≥ 1.5× font size */
+
+/* Scanlines */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0, transparent 2px,
+    rgba(0,0,0,.05) 2px, rgba(0,0,0,.05) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── App Layout ─────────────────────────────────────────────────────────────── */
+.app {
+  display: grid;
+  grid-template-rows: var(--header-h) 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr var(--rp-w);
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 18px;
+  background: var(--bg-1);
+  border-bottom: 1px solid var(--border-bright);
+  box-shadow: var(--glow-sm);
+  position: relative;
+  z-index: 10;
+}
+
+.header-title {
+  font-family: var(--font-mono);
+  font-size: 17px;
+  letter-spacing: 4px;
+  color: var(--ghost);
+  text-shadow: var(--glow-md);
+  animation: glow-pulse 4s ease-in-out infinite;
+  white-space: nowrap;
+}
+
+.header-sep { color: var(--text-dim); }
+
+.phase-badge {
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 3px 10px;
+  border: 1px solid var(--ghost);
+  color: var(--ghost);
+  border-radius: var(--radius);
+  box-shadow: var(--glow-sm);
+  white-space: nowrap;
+}
+
+.alert-badge {
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 3px 10px;
+  border-radius: var(--radius);
+  font-weight: bold;
+  transition: color .3s, border-color .3s, box-shadow .3s;
+  border: 1px solid var(--alert-cold);
+  color: var(--alert-cold);
+  white-space: nowrap;
+}
+.alert-badge.warm     { color: var(--alert-warm);     border-color: var(--alert-warm);     box-shadow: 0 0 8px var(--alert-warm); }
+.alert-badge.hot      { color: var(--alert-hot);      border-color: var(--alert-hot);      box-shadow: 0 0 12px var(--alert-hot); animation: alert-pulse 1s ease-in-out infinite; }
+.alert-badge.scorched { color: var(--alert-scorched); border-color: var(--alert-scorched); box-shadow: 0 0 16px var(--alert-scorched); animation: alert-pulse .5s ease-in-out infinite; }
+
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+.turn-counter { font-size: 11px; color: var(--text-dim); letter-spacing: 1px; }
+
+.telemetry-link {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 4px 12px;
+  color: var(--accent);
+  text-decoration: none;
+  border: 1px solid rgba(0, 255, 159, 0.4);
+  border-radius: var(--radius);
+  transition: var(--transition);
+}
+.telemetry-link:hover { background: rgba(0,255,159,.08); box-shadow: 0 0 8px rgba(0,255,159,.3); }
+
+.new-session-btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding: 4px 12px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--text-dim);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.new-session-btn:hover { color: var(--ghost); border-color: var(--ghost); box-shadow: var(--glow-sm); }
+
+/* ── Left Sidebar ───────────────────────────────────────────────────────────── */
+.sidebar {
+  background: var(--bg-1);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+.sidebar-section {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-heading {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+/* Crew members */
+.crew-member {
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.crew-member:last-child { border-bottom: none; }
+
+.crew-top {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 4px;
+}
+
+.crew-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+.crew-dot.operational { box-shadow: 0 0 5px currentColor; }
+.crew-dot.wounded      { opacity: .7; animation: blink 1.5s ease-in-out infinite; }
+.crew-dot.critical     { opacity: .5; animation: blink .6s ease-in-out infinite; }
+
+.crew-name  { font-size: 12px; letter-spacing: 1px; flex: 1; }
+.crew-status { font-size: 11px; color: var(--text-dim); letter-spacing: 1px; }
+.crew-status.wounded  { color: var(--alert-warm); }
+.crew-status.critical { color: var(--danger); }
+
+.crew-notes { font-size: 10px; color: var(--text-dim); margin-left: 4px; }
+
+/* Health bar */
+.health-bar-wrap { display: flex; align-items: center; gap: 6px; }
+.health-bar {
+  flex: 1;
+  height: 3px;
+  background: var(--bg-3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.health-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width .5s ease;
+  opacity: .85;
+}
+.health-fill.wounded  { filter: brightness(.75); }
+.health-fill.critical { filter: brightness(.5); animation: blink 1s ease-in-out infinite; }
+.health-pct { font-size: 10px; color: var(--text-dim); width: 28px; text-align: right; flex-shrink: 0; }
+
+.crew-last {
+  font-size: 10px;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Agent colour bindings */
+.agent-ghost  { color: var(--ghost);  }
+.agent-wraith { color: var(--wraith); }
+.agent-cipher { color: var(--cipher); }
+.agent-shadow { color: var(--shadow); }
+.agent-patch  { color: var(--patch);  }
+.agent-vex    { color: var(--vex);    }
+
+/* Objectives */
+.objective-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 3px 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+.obj-icon { flex-shrink: 0; margin-top: 1px; }
+.objective-item.complete { color: var(--text-dim); text-decoration: line-through; }
+.objective-item.complete .obj-icon { color: var(--cipher); }
+.objective-item.failed   .obj-icon { color: var(--wraith); }
+.objective-item.pending  .obj-icon { color: var(--text-dim); }
+
+/* World flags */
+.flag-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 0;
+  font-size: 12px;
+  color: var(--text-dim);
+  letter-spacing: .5px;
+}
+.flag-value.active   { color: var(--accent); }
+.flag-value.inactive { color: var(--text-dim); }
+
+.empty-msg { color: var(--text-dim); font-size: 12px; }
+
+/* ── Center Column ──────────────────────────────────────────────────────────── */
+.center-column {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+  background: var(--bg-0);
+  position: relative;
+}
+
+/* Main output (narrative + agent cards) */
+.output {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.output::-webkit-scrollbar { width: 5px; }
+.output::-webkit-scrollbar-track { background: var(--bg-0); }
+.output::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.output::-webkit-scrollbar-thumb:hover { background: var(--border-bright); }
+
+/* ── Mission Log ─────────────────────────────────────────────────────────────── */
+.mission-log-wrap {
+  flex: 0 0 var(--log-h);
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--bg-1);
+}
+
+.mlw-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.mlw-count { font-size: 9px; color: var(--text-dim); letter-spacing: 0; }
+
+.mission-log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 5px 14px;
+}
+.mission-log::-webkit-scrollbar { width: 3px; }
+.mission-log::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* Log entries */
+.log-entry {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 1px 0;
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.log-time  { color: var(--text-dim); flex-shrink: 0; font-size: 10px; }
+.log-label { flex-shrink: 0; font-size: 10px; }
+.log-text  { color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; }
+
+.log-player .log-text  { color: var(--text-primary); }
+.log-iq     .log-label { color: var(--text-dim); font-style: italic; }
+.log-iq     .log-text  { color: var(--text-dim); font-style: italic; }
+.log-phase  .log-text  { color: var(--accent); letter-spacing: 1px; }
+.log-dice   .log-text  { color: var(--patch); }
+.log-system .log-text  { color: var(--text-dim); font-style: italic; }
+
+/* Label colours per agent */
+.log-label.agent-ghost  { color: var(--ghost);  }
+.log-label.agent-wraith { color: var(--wraith); }
+.log-label.agent-cipher { color: var(--cipher); }
+.log-label.agent-shadow { color: var(--shadow); }
+.log-label.agent-patch  { color: var(--patch);  }
+.log-label.agent-vex    { color: var(--vex);    }
+.log-label.iq           { color: var(--text-dim); font-style: italic; }
+
+/* ── Input Area ─────────────────────────────────────────────────────────────── */
+.input-area {
+  flex: 0 0 var(--input-h);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 10px 18px;
+  background: var(--bg-1);
+  border-top: 1px solid var(--border-bright);
+  box-shadow: 0 -4px 20px rgba(0,0,0,.4);
+}
+
+.input-prompt {
+  color: var(--ghost);
+  font-size: 15px;
+  padding-right: 10px;
+  text-shadow: var(--glow-sm);
+  flex-shrink: 0;
+}
+
+#playerInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  caret-color: var(--ghost);
+  letter-spacing: .5px;
+}
+#playerInput::placeholder { color: var(--text-dim); letter-spacing: 1px; }
+
+.send-btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 7px 18px;
+  background: transparent;
+  color: var(--ghost);
+  border: 1px solid var(--ghost);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+.send-btn:hover:not(:disabled) { background: rgba(0,229,255,.1); box-shadow: var(--glow-sm); }
+.send-btn:disabled { opacity: .3; cursor: not-allowed; border-color: var(--text-dim); color: var(--text-dim); }
+
+/* ── Right Reasoning Panel ───────────────────────────────────────────────────── */
+.reasoning-panel {
+  background: var(--bg-1);
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.reasoning-panel::-webkit-scrollbar { width: 3px; }
+.reasoning-panel::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+.rp-section {
+  padding: 13px 15px;
+  border-bottom: 1px solid var(--border);
+}
+
+.rp-heading {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.rp-idle { font-size: 11px; color: var(--text-dim); font-style: italic; }
+
+/* Phase Progress steps (vertical) */
+.phase-progress { display: flex; flex-direction: column; }
+
+.phase-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ps-icon { width: 14px; text-align: center; font-size: 12px; flex-shrink: 0; }
+.ps-name { font-size: 11px; letter-spacing: 2px; }
+
+.phase-step.done    { color: var(--text-dim); }
+.phase-step.done .ps-icon { color: var(--accent); }
+.phase-step.current { color: var(--accent); }
+.phase-step.current .ps-name { text-shadow: 0 0 8px var(--accent); }
+.phase-step.future  { color: var(--text-dim); opacity: .45; }
+
+.ps-conn { padding: 0 0 0 6px; height: 14px; display: flex; align-items: center; }
+.ps-conn-line { width: 1px; height: 12px; background: var(--border); }
+
+/* Foundry IQ section */
+.rp-iq-meta {
+  font-size: 10px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.iq-mode-azure { color: var(--ghost); letter-spacing: 1px; font-size: 10px; }
+.iq-mode-local { color: var(--patch); letter-spacing: 1px; font-size: 10px; }
+.iq-hits { color: var(--text-dim); font-size: 10px; }
+
+.rp-iq-query {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.rp-iq-sources { display: flex; flex-direction: column; gap: 3px; }
+
+.rp-iq-item {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.iq-label { color: var(--text-dim); font-style: italic; font-size: 10px; flex-shrink: 0; }
+.iq-file  { color: var(--accent); font-size: 11px; }
+.iq-sources { color: var(--text-secondary); }
+.iq-query   { color: var(--text-dim); font-style: italic; }
+
+.rp-iq-no-results {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #ff9900;
+  letter-spacing: 1.5px;
+  margin-top: 6px;
+  padding: 4px 8px;
+  border-left: 2px solid rgba(255, 153, 0, 0.5);
+  opacity: 0.85;
+}
+
+.rp-iq-snippet {
+  font-style: italic;
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.5;
+  margin-top: 4px;
+  padding: 4px 8px;
+  border-left: 1px solid var(--border);
+  word-break: break-word;
+  opacity: .85;
+}
+
+/* Agents consulted section */
+.rp-agent {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 3px 0;
+  font-size: 12px;
+}
+.rp-agent-name { font-size: 12px; letter-spacing: 1px; font-weight: normal; }
+.rp-agent-role { font-size: 10px; color: var(--text-dim); letter-spacing: .5px; }
+
+/* Dice section */
+.rp-dice-line {
+  font-size: 13px;
+  color: var(--text-primary);
+  margin-bottom: 7px;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.rp-dice-val { font-size: 20px; font-weight: bold; line-height: 1; }
+.rp-dice-val.critical-success { color: var(--ghost);  text-shadow: var(--glow-sm); }
+.rp-dice-val.success           { color: var(--cipher); }
+.rp-dice-val.partial           { color: var(--patch);  }
+.rp-dice-val.failure           { color: var(--danger); }
+
+.rp-dice-result {
+  display: inline-block;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border: 1px solid;
+  border-radius: var(--radius);
+}
+.rp-dice-result.critical-success { color: var(--ghost);  border-color: var(--ghost);  }
+.rp-dice-result.success           { color: var(--cipher); border-color: var(--cipher); }
+.rp-dice-result.partial           { color: var(--patch);  border-color: var(--patch);  }
+.rp-dice-result.failure           { color: var(--danger); border-color: var(--danger); }
+
+/* Turn stats section */
+.rp-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.rp-stat-row:last-child { border-bottom: none; }
+.rp-stat-label { font-size: 10px; color: var(--text-dim); letter-spacing: 1px; }
+.rp-stat-val   { font-size: 13px; color: var(--accent); letter-spacing: 1px; }
+
+/* ── Output Message Types ────────────────────────────────────────────────────── */
+
+.turn { margin-bottom: 24px; animation: fadeSlideIn .25s ease-out; }
+
+/* Intro */
+.intro-block {
+  padding: 18px 0 6px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--border);
+}
+.ascii-banner {
+  color: var(--ghost);
+  font-size: 9.5px;
+  line-height: 1.2;
+  text-shadow: 0 0 8px rgba(0,229,255,.5);
+  margin-bottom: 14px;
+  overflow-x: auto;
+}
+.intro-text { color: var(--text-secondary); line-height: 1.8; font-size: 14px; }
+.intro-text strong { color: var(--ghost); }
+
+/* Player input echo */
+.player-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: var(--text-secondary);
+}
+.player-line .prompt { color: var(--ghost); }
+.player-line .player-text { font-style: italic; }
+
+/* IQ citation strip in output stream */
+.iq-citation {
+  padding: 6px 12px;
+  margin-bottom: 10px;
+  background: rgba(255,255,255,.02);
+  border-left: 2px solid var(--text-dim);
+  font-style: italic;
+  color: var(--text-dim);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  animation: fadeSlideIn .2s ease-out;
+}
+
+.iq-citation-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 5px;
+  line-height: 1.6;
+}
+.iq-citation-line + .iq-citation-line { margin-top: 4px; }
+
+.iq-file-label {
+  color: var(--text-dim);
+  font-style: italic;
+  font-size: 12px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.iq-snippet {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 13px;
+  opacity: .85;
+}
+
+/* Agent assessment cards */
+.crew-assessments { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+
+.agent-card {
+  border-left: 3px solid;
+  padding: 9px 13px 9px 12px;
+  background: var(--bg-card);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  animation: fadeSlideIn .2s ease-out;
+  margin-bottom: 16px;
+}
+.agent-card-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 5px; }
+.agent-card-name   { font-size: 12px; letter-spacing: 2px; }
+.agent-card-role   { font-size: 11px;  color: var(--text-dim); letter-spacing: 1px; }
+.agent-card-body   { color: var(--text-primary); line-height: 1.7; white-space: pre-wrap; font-size: 15px; }
+
+.agent-card.ghost  { border-color: var(--ghost);  }  .agent-card.ghost  .agent-card-name { color: var(--ghost);  }
+.agent-card.wraith { border-color: var(--wraith); }  .agent-card.wraith .agent-card-name { color: var(--wraith); }
+.agent-card.cipher { border-color: var(--cipher); }  .agent-card.cipher .agent-card-name { color: var(--cipher); }
+.agent-card.shadow { border-color: var(--shadow); }  .agent-card.shadow .agent-card-name { color: var(--shadow); }
+.agent-card.patch  { border-color: var(--patch);  }  .agent-card.patch  .agent-card-name { color: var(--patch);  }
+.agent-card.vex    { border-color: var(--vex);    }  .agent-card.vex    .agent-card-name { color: var(--vex);    }
+
+/* Dice block in output stream */
+.dice-block {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  font-size: 12px;
+  animation: fadeSlideIn .2s ease-out;
+}
+.dice-icon     { font-size: 16px; }
+.dice-equation { color: var(--text-secondary); letter-spacing: 1px; }
+.dice-total    { font-size: 17px; font-weight: bold; }
+.dice-total.critical-success { color: var(--ghost);  text-shadow: var(--glow-sm); }
+.dice-total.success           { color: var(--cipher); }
+.dice-total.partial           { color: var(--patch);  }
+.dice-total.failure           { color: var(--danger); }
+.dice-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 2px 7px;
+  border-radius: var(--radius);
+  border: 1px solid currentColor;
+}
+.dice-label.critical-success { color: var(--ghost);  }
+.dice-label.success           { color: var(--cipher); }
+.dice-label.partial           { color: var(--patch);  }
+.dice-label.failure           { color: var(--danger); }
+
+/* GM Narrative */
+.gm-narrative {
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--ghost);
+  border-left: 3px solid var(--ghost);
+  background: var(--bg-card);
+  padding: 12px 16px 12px 12px;
+  border-radius: 0 0 var(--radius) var(--radius);
+  animation: fadeSlideIn .3s ease-out;
+  margin-bottom: 16px;
+}
+
+/* Extraction confirmation prompt — amber/warning border */
+.gm-narrative.confirmation-prompt {
+  border-left-color: var(--alert-warm) !important;
+  border-top-color:  var(--alert-warm) !important;
+}
+.gm-narrative.confirmation-prompt .gm-label {
+  color: var(--alert-warm);
+  text-shadow: 0 0 8px rgba(255, 153, 0, 0.45);
+}
+.gm-narrative.confirmation-prompt .gm-sep {
+  background: rgba(255, 153, 0, 0.3);
+}
+
+/* Confirm-extraction suggestion button — prominent amber style */
+.confirm-action-btn {
+  border-color: var(--alert-warm) !important;
+  color: var(--alert-warm) !important;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+}
+.confirm-action-btn:hover {
+  background: rgba(255, 153, 0, 0.12) !important;
+  box-shadow: 0 0 8px rgba(255, 153, 0, 0.3) !important;
+}
+
+/* Foundry IQ inline provenance markers */
+.iq-marker {
+  color: #00b4ff;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+.iq-grounded-text {
+  color: #a0c0d0;
+  font-style: italic;
+}
+
+/* Scroll-to-bottom floating button */
+.scroll-to-bottom-btn {
+  position: absolute;
+  bottom: calc(var(--log-h) + var(--input-h) + 12px);
+  right: 20px;
+  background: var(--bg-2);
+  border: 1px solid var(--border-bright);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding: 5px 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.scroll-to-bottom-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.scroll-to-bottom-btn:hover {
+  background: rgba(0, 255, 159, 0.08);
+  box-shadow: var(--glow-sm);
+}
+body.reduce-motion .scroll-to-bottom-btn { transition: none; }
+.ai-disclosure {
+  font-size: 10px;
+  color: #555;
+  text-align: center;
+  padding: 4px 0 2px;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+.gm-header { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+.gm-label  { font-size: 12px; letter-spacing: 3px; color: var(--ghost); text-shadow: var(--glow-sm); }
+.gm-sep    { flex: 1; height: 1px; background: var(--border); }
+.gm-body   { color: var(--text-primary); line-height: 1.8; white-space: pre-wrap; font-size: 15px; }
+
+/* Phase advance notice */
+.phase-advance {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  background: var(--bg-2);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 2px;
+  box-shadow: 0 0 8px rgba(0,255,159,.2);
+  animation: fadeSlideIn .3s ease-out;
+}
+
+/* System / command messages */
+.system-message {
+  padding: 7px 12px;
+  background: var(--bg-2);
+  border-left: 2px solid var(--text-dim);
+  font-size: 11px;
+  color: var(--text-secondary);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin-bottom: 14px;
+  animation: fadeSlideIn .2s ease-out;
+  line-height: 1.6;
+}
+.system-message.error   { border-left-color: var(--danger); color: var(--danger); }
+.system-message.success { border-left-color: var(--cipher); color: var(--cipher); }
+
+/* Processing */
+.processing {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  color: var(--text-dim);
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+.processing-dots span { display: inline-block; animation: blink 1.2s ease-in-out infinite; }
+.processing-dots span:nth-child(2) { animation-delay: .2s; }
+.processing-dots span:nth-child(3) { animation-delay: .4s; }
+
+/* Turn divider */
+.turn-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--border), transparent);
+  margin: 2px 0 20px;
+}
+
+/* ── Animations ─────────────────────────────────────────────────────────────── */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { text-shadow: 0 0 6px rgba(0,229,255,.4); }
+  50%       { text-shadow: 0 0 14px rgba(0,229,255,.7), 0 0 28px rgba(0,229,255,.3); }
+}
+
+@keyframes alert-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .6; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .2; }
+}
+
+/* ── Firefox Scrollbars ──────────────────────────────────────────────────────── */
+* { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+
+/* ── Vex Encounter Modal ────────────────────────────────────────────────────── */
+
+.vex-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(3px);
+  animation: fadeIn .2s ease-out;
+}
+
+.vex-modal {
+  width: min(700px, 92vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--bg-1);
+  border: 1px solid var(--vex);
+  border-top: 3px solid var(--vex);
+  border-radius: var(--radius);
+  box-shadow:
+    0 0 30px rgba(255, 102, 0, 0.3),
+    0 0 70px rgba(255, 102, 0, 0.1);
+  animation: modalSlideIn .3s ease-out;
+}
+
+.vex-modal::-webkit-scrollbar { width: 4px; }
+.vex-modal::-webkit-scrollbar-thumb { background: rgba(255,102,0,.35); border-radius: 2px; }
+
+.vex-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 20px;
+  background: rgba(255, 102, 0, 0.07);
+  border-bottom: 1px solid rgba(255, 102, 0, 0.22);
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--vex);
+  text-transform: uppercase;
+}
+
+.vex-warning-icon { font-size: 14px; flex-shrink: 0; }
+.vex-modal-sub { margin-left: auto; font-size: 10px; color: var(--text-dim); letter-spacing: 1px; }
+
+.vex-ghost-block {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.vex-offer-wrap {
+  padding: 0 20px;
+  margin-top: 14px;
+}
+
+.vex-choices {
+  padding: 14px 20px 8px;
+  border-top: 1px solid var(--border);
+}
+
+.vex-choices-hdr {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.vex-choice-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 14px;
+}
+
+.vex-choice-btn {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 11px 14px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-mono);
+  transition: border-color .12s, background .12s, box-shadow .12s;
+  color: var(--text-primary);
+}
+
+.vex-choice-btn:disabled { opacity: .38; cursor: not-allowed; }
+
+.choice-a:hover:not(:disabled) {
+  border-color: var(--danger);
+  background: rgba(255,0,60,.05);
+  box-shadow: 0 0 8px rgba(255,0,60,.15);
+}
+.choice-b:hover:not(:disabled) {
+  border-color: var(--cipher);
+  background: rgba(57,255,136,.05);
+  box-shadow: 0 0 8px rgba(57,255,136,.15);
+}
+.choice-c:hover:not(:disabled) {
+  border-color: var(--patch);
+  background: rgba(255,204,0,.05);
+  box-shadow: 0 0 8px rgba(255,204,0,.15);
+}
+
+.vex-choice-key {
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 20px;
+  margin-top: 2px;
+}
+.choice-a .vex-choice-key { color: var(--danger); }
+.choice-b .vex-choice-key { color: var(--cipher); }
+.choice-c .vex-choice-key { color: var(--patch);  }
+
+.vex-choice-content { flex: 1; min-width: 0; }
+
+.vex-choice-title {
+  font-size: 11px;
+  letter-spacing: 2px;
+  margin-bottom: 3px;
+  color: var(--text-primary);
+}
+.vex-choice-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+  line-height: 1.5;
+}
+.vex-choice-risk {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.vex-patch-wrap {
+  padding: 0 20px 16px;
+  animation: fadeSlideIn .3s ease-out;
+}
+
+/* Flag value variants for non-boolean flags */
+.flag-value-warn { color: var(--alert-warm); }
+.flag-value-good { color: var(--accent); }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: translateY(-18px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0)     scale(1);   }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ACCESSIBILITY FEATURES — Ghost Protocol
+   WCAG 2.1 AA targeted. Screen readers, keyboard nav, contrast, motion.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Reset heading elements so h1/h2/h3 don't disrupt layout */
+h1, h2, h3 {
+  font-weight: normal;
+  font-size: inherit;
+  margin: 0;
+  padding: 0;
+  line-height: inherit;
+  letter-spacing: inherit;
+}
+
+/* ── Skip Navigation Link ─────────────────────────────────────────────────── */
+.skip-link {
+  position: fixed;
+  top: -120px;
+  left: 10px;
+  z-index: 99999;
+  padding: 10px 20px;
+  background: var(--accent);
+  color: var(--bg-0);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+  letter-spacing: 1px;
+  transition: top 0.12s ease;
+}
+.skip-link:focus { top: 0; outline: 3px solid var(--bg-0); outline-offset: -3px; }
+
+/* ── Screen-Reader-Only Utility ───────────────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Focus Indicators ─────────────────────────────────────────────────────── */
+/* 3px solid cyan — meets WCAG 2.4.11 and 3:1 contrast for low vision users */
+:focus-visible {
+  outline: 3px solid var(--accent) !important; /* #00ff9f — high contrast on dark bg */
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 5px rgba(0,255,159,0.22) !important;
+  border-radius: var(--radius) !important;
+}
+/* Suppress mouse-click focus rings — keep keyboard-only ones */
+*:focus:not(:focus-visible) { outline: none !important; box-shadow: none !important; }
+
+/* ── Accessibility Controls (header button group) ─────────────────────────── */
+.a11y-controls {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 8px;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.a11y-btn {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  padding: 3px 7px;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.6;
+}
+.a11y-btn:hover { color: var(--accent); border-color: var(--accent); box-shadow: var(--glow-sm); }
+.a11y-btn[aria-pressed="true"] {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(0,255,159,0.10);
+}
+
+.kb-help-btn {
+  font-size: 13px;
+  padding: 2px 7px;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: var(--font-mono);
+}
+.kb-help-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ── Keyboard Shortcuts Panel ─────────────────────────────────────────────── */
+.kb-help-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.88);
+  z-index: 5000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  animation: fadeIn .15s ease-out;
+}
+.kb-help-overlay[hidden] { display: none !important; }
+
+.kb-help-panel {
+  width: min(560px, 92vw);
+  max-height: 84vh;
+  overflow-y: auto;
+  background: var(--bg-1);
+  border: 1px solid var(--accent);
+  border-top: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 22px 28px;
+  box-shadow: var(--glow-md);
+}
+.kb-help-panel::-webkit-scrollbar { width: 3px; }
+.kb-help-panel::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+.kb-help-panel h2 {
+  font-size: 0.875rem !important; /* 14px minimum — meets low-vision requirement */
+  letter-spacing: 3px !important;
+  color: var(--accent) !important;
+  margin-bottom: 16px !important;
+  text-transform: uppercase;
+}
+
+.kb-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.kb-table th {
+  text-align: left;
+  color: var(--text-dim);
+  font-size: 10px;
+  letter-spacing: 2px;
+  padding: 0 0 7px;
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
+  font-weight: normal;
+}
+.kb-table td {
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,.03);
+  vertical-align: top;
+}
+.kb-table tr:last-child td { border-bottom: none; }
+.kb-key {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  padding-right: 18px;
+  min-width: 150px;
+  font-size: 11px;
+}
+.kb-desc { color: var(--text-secondary); line-height: 1.6; }
+.kb-section-head td {
+  color: var(--text-dim);
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding-top: 13px;
+  padding-bottom: 1px;
+  text-transform: uppercase;
+}
+.kb-close-btn {
+  display: block;
+  margin: 18px auto 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 7px 26px;
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.kb-close-btn:hover { background: rgba(0,255,159,.08); box-shadow: var(--glow-sm); }
+
+/* ── Tooltip (data-tooltip attribute) ────────────────────────────────────── */
+[data-tooltip] { position: relative; }
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-2);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius);
+  padding: 5px 10px;
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 500;
+  font-family: var(--font-ui);
+  letter-spacing: 0;
+  font-style: normal;
+  font-weight: normal;
+}
+[data-tooltip]:hover::after,
+[data-tooltip]:focus-visible::after { opacity: 1; }
+
+/* ── Accessibility Statement Link (footer) ────────────────────────────────── */
+.app-footer {
+  position: fixed;
+  bottom: 5px;
+  right: 12px;
+  z-index: 100;
+}
+.app-footer a {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  text-decoration: none;
+  letter-spacing: 1px;
+  opacity: 0.45;
+  transition: opacity 0.15s;
+}
+.app-footer a:hover,
+.app-footer a:focus { opacity: 1; color: var(--accent); }
+
+/* ── High Contrast Mode ───────────────────────────────────────────────────── */
+body.high-contrast {
+  --bg-0:           #000000;
+  --bg-1:           #080808;
+  --bg-2:           #101010;
+  --bg-3:           #181818;
+  --bg-card:        #050505;
+  --accent:         #ffff00;
+  --danger:         #ff9999;
+  --info:           #88ccff;
+  --ghost:          #ffffff;
+  --wraith:         #ffbbbb;
+  --cipher:         #bbffbb;
+  --shadow:         #ddbbff;
+  --patch:          #ffffaa;
+  --vex:            #ffcc99;
+  --text-primary:   #ffffff;
+  --text-secondary: #eeeeee;
+  --text-dim:       #cccccc;
+  --border:         rgba(255,255,255,0.35);
+  --border-bright:  rgba(255,255,255,0.70);
+  --glow-sm:        none;
+  --glow-md:        none;
+  --alert-cold:     #aaaaaa;
+  --alert-warm:     #ffdd44;
+  --alert-hot:      #ff9944;
+  --alert-scorched: #ff5555;
+}
+body.high-contrast .header-title    { text-shadow: none; animation: none; }
+body.high-contrast .ascii-banner    { color: #ffff00; text-shadow: none; }
+body.high-contrast .agent-card      { border-left-width: 3px; }
+body.high-contrast .health-fill     { opacity: 1; filter: none; }
+body.high-contrast .phase-badge     { font-weight: bold; border-width: 2px; }
+body.high-contrast .alert-badge     { font-weight: bold; border-width: 2px; }
+body.high-contrast .vex-modal       { box-shadow: none; }
+body.high-contrast body::after      { opacity: 0; }  /* scanlines */
+body.high-contrast .crew-dot.wounded,
+body.high-contrast .crew-dot.critical { animation: none; opacity: 1; }
+body.high-contrast .health-fill.critical { animation: none; }
+body.high-contrast .processing-dots span { animation: none; opacity: 1; }
+
+/* ── Font Size Modes ──────────────────────────────────────────────────────── */
+/* Base is now 1rem (16px); large = 1.125rem (18px); xl = 1.375rem (22px)    */
+body.font-large { font-size: 1.125rem; }
+body.font-xl    { font-size: 1.375rem; }
+
+body.font-large .agent-card-body,
+body.font-large .gm-body,
+body.font-large .intro-text         { font-size: 1.125rem; }
+body.font-xl .agent-card-body,
+body.font-xl .gm-body,
+body.font-xl .intro-text            { font-size: 1.375rem; }
+
+body.font-large #playerInput        { font-size: 1.125rem; }
+body.font-xl    #playerInput        { font-size: 1.375rem; }
+
+/* Sidebar headings scale up proportionally; never below 0.875rem (14px) */
+body.font-large .sidebar-heading,
+body.font-large .rp-heading         { font-size: 0.875rem; letter-spacing: 2px; }
+body.font-xl    .sidebar-heading,
+body.font-xl    .rp-heading         { font-size: 0.9375rem; letter-spacing: 2px; }
+
+/* ── Reduce Motion ────────────────────────────────────────────────────────── */
+body.reduce-motion *,
+body.reduce-motion *::before,
+body.reduce-motion *::after         { animation: none !important; transition: none !important; }
+body.reduce-motion::after           { display: none !important; }
+
+/* Honour OS-level preference automatically */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after            { animation: none !important; transition: none !important; }
+  body::after                       { display: none !important; }
+}
+
+/* ── Simple Mode ──────────────────────────────────────────────────────────── */
+body.simple-mode .sidebar,
+body.simple-mode .reasoning-panel   { display: none !important; }
+body.simple-mode .main              { grid-template-columns: 1fr !important; }
+body.simple-mode                    { font-size: 18px; }
+body.simple-mode .agent-card-body,
+body.simple-mode .gm-body           { font-size: 20px; line-height: 2; }
+body.simple-mode #playerInput       { font-size: 18px; }
+body.simple-mode *,
+body.simple-mode *::before,
+body.simple-mode *::after           { animation: none; transition: none; }
+body.simple-mode::after             { display: none; }
+body.simple-mode .input-area        { padding: 14px 22px; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   NEURODIVERSITY / ADHD ACCESSIBILITY — Ghost Protocol
+   Focus Mode, Zen Mode, Reading Guide, Response Length, Vex Pre-Warning.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Focus Mode ──────────────────────────────────────────────────────────── */
+body.focus-mode .sidebar,
+body.focus-mode .reasoning-panel    { display: none !important; }
+body.focus-mode .main               { grid-template-columns: 1fr !important; }
+body.focus-mode                     { font-size: 16px; }
+body.focus-mode .agent-card-body,
+body.focus-mode .gm-body            { font-size: 18px; line-height: 1.9; }
+body.focus-mode #playerInput        { font-size: 16px; }
+body.focus-mode *,
+body.focus-mode *::before,
+body.focus-mode *::after            { animation: none !important; transition: none !important; }
+body.focus-mode::after              { display: none !important; }
+body.focus-mode .input-area         { padding: 14px 22px; }
+
+/* Focus mode: next-item navigation */
+.focus-next-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 4px;
+}
+.focus-next-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 26px;
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  transition: var(--transition);
+}
+.focus-next-btn:hover { background: rgba(0,255,159,.08); box-shadow: var(--glow-sm); }
+.focus-next-count { font-size: 10px; color: var(--text-dim); letter-spacing: 0; }
+
+/* ── Zen Mode ─────────────────────────────────────────────────────────────── */
+body.zen-mode {
+  --bg-0:          #000000;
+  --bg-1:          #000000;
+  --bg-2:          #080808;
+  --bg-3:          #0f0f0f;
+  --bg-card:       #000000;
+  --text-primary:  #ffffff;
+  --text-secondary:#dddddd;
+  --text-dim:      #888888;
+  --ghost:         #ffffff;
+  --wraith:        #eeeeee;
+  --cipher:        #eeeeee;
+  --shadow:        #eeeeee;
+  --patch:         #eeeeee;
+  --border:        rgba(255,255,255,0.15);
+  --border-bright: rgba(255,255,255,0.30);
+  --glow-sm:       none;
+  --glow-md:       none;
+  font-size: 18px;
+}
+body.zen-mode .sidebar,
+body.zen-mode .reasoning-panel,
+body.zen-mode .mission-log-wrap,
+body.zen-mode .a11y-controls,
+body.zen-mode .telemetry-link,
+body.zen-mode .new-session-btn,
+body.zen-mode .kb-help-btn,
+body.zen-mode .app-footer,
+body.zen-mode .header-sep,
+body.zen-mode .turn-counter         { display: none !important; }
+body.zen-mode .main                 { grid-template-columns: 1fr !important; }
+body.zen-mode .header               { justify-content: center; gap: 24px; padding: 0 32px; }
+body.zen-mode .header-right         { display: none !important; }
+body.zen-mode .agent-card-body,
+body.zen-mode .gm-body              { font-size: 20px; line-height: 2.1; }
+body.zen-mode #playerInput          { font-size: 18px; }
+body.zen-mode .header-title         { animation: none !important; text-shadow: none; }
+body.zen-mode .agent-card           { border-left-color: rgba(255,255,255,0.35) !important; }
+body.zen-mode .agent-card-name      { color: #ffffff !important; }
+body.zen-mode .gm-label             { color: #ffffff; text-shadow: none; }
+body.zen-mode .intro-block          { display: none; }
+body.zen-mode *,
+body.zen-mode *::before,
+body.zen-mode *::after              { animation: none !important; transition: none !important; }
+body.zen-mode::after                { display: none !important; }
+body.zen-mode .center-column        { align-items: center; }
+body.zen-mode .output               { max-width: 800px; margin: 0 auto; padding: 24px 32px; }
+body.zen-mode .input-area           { max-width: 800px; width: 100%; margin: 0 auto; padding: 14px 32px; }
+
+/* ── Reading Guide Line ──────────────────────────────────────────────────── */
+#readingGuideLine {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(0, 255, 159, 0.25);
+  box-shadow: 0 0 10px rgba(0, 255, 159, 0.12);
+  pointer-events: none;
+  z-index: 9998;
+  display: none;
+}
+body.guide-mode #readingGuideLine   { display: block; }
+
+/* ── Post-Response Prompt Hint ───────────────────────────────────────────── */
+.prompt-hint {
+  padding: 5px 10px;
+  margin: 4px 0 2px;
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+  border-left: 2px solid var(--border);
+  line-height: 1.6;
+}
+.prompt-hint-cmd { color: var(--accent); }
+
+/* ── Response Length Button (header) ─────────────────────────────────────── */
+#responseLengthBtn.active-brief   { color: var(--patch);  border-color: var(--patch);  background: rgba(255,204,0,.08); }
+#responseLengthBtn.active-detailed { color: var(--ghost); border-color: var(--ghost);  background: rgba(0,229,255,.06); }
+
+/* ── Vex Content Pre-Warning ─────────────────────────────────────────────── */
+.vex-prewarn {
+  padding: 14px 18px;
+  background: rgba(255, 102, 0, 0.05);
+  border: 1px solid rgba(255, 102, 0, 0.28);
+  border-top: 2px solid var(--vex);
+  border-radius: 0 0 var(--radius) var(--radius);
+  margin-bottom: 10px;
+  animation: fadeSlideIn .2s ease-out;
+}
+.vex-prewarn-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--vex);
+  text-transform: uppercase;
+}
+.vex-prewarn-icon { font-size: 14px; }
+.vex-prewarn-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+.vex-prewarn-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.vex-prewarn-continue-btn {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 6px 16px;
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.vex-prewarn-continue-btn:hover { background: rgba(0,255,159,.08); box-shadow: var(--glow-sm); }
+.vex-prewarn-skip-btn {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 6px 16px;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.vex-prewarn-skip-btn:hover { color: var(--danger); border-color: var(--danger); }
+.vex-prewarn-skip-hint {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+  font-style: italic;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MENTAL HEALTH CONSIDERATE DESIGN — Ghost Protocol
+   Content Advisory, Crew Morale, Pause/Quit Overlays, Stress Message.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Content Advisory Overlay (shown on first load) ──────────────────────── */
+.ca-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.96);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(5px);
+}
+
+.ca-modal {
+  width: min(600px, 92vw);
+  background: var(--bg-1);
+  border: 1px solid var(--border-bright);
+  border-top: 3px solid var(--ghost);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--glow-md);
+  animation: modalSlideIn .25s ease-out;
+}
+
+.ca-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--ghost);
+  text-transform: uppercase;
+}
+.ca-icon { font-size: 16px; }
+
+.ca-body {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+.ca-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 14px;
+}
+.ca-list li { padding: 2px 0; }
+.ca-list li::before { content: '·  '; color: var(--ghost); }
+
+.ca-footer-note {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.8;
+}
+.ca-footer-note strong { color: var(--accent); }
+
+.ca-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.ca-btn-primary {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 10px 16px;
+  min-width: 140px;
+  white-space: nowrap;
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+}
+.ca-btn-primary:hover { background: rgba(0,255,159,.1); box-shadow: var(--glow-sm); }
+
+.ca-btn-secondary {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 10px 16px;
+  min-width: 140px;
+  white-space: nowrap;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+}
+.ca-btn-secondary:hover { color: var(--ghost); border-color: var(--ghost); }
+
+/* ── Crew Morale Badge (header, alongside alert) ─────────────────────────── */
+.morale-badge {
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 3px 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  white-space: nowrap;
+  transition: color .3s, border-color .3s, box-shadow .3s;
+}
+.morale-badge.ok       { color: var(--patch);      border-color: var(--patch); }
+.morale-badge.low      { color: var(--alert-hot);   border-color: var(--alert-hot);  box-shadow: 0 0 6px rgba(255,68,0,.25); }
+.morale-badge.critical { color: var(--danger);      border-color: var(--danger);     box-shadow: 0 0 8px rgba(255,0,60,.3); animation: alert-pulse 1s ease-in-out infinite; }
+
+/* ── Stress / Breath Message ─────────────────────────────────────────────── */
+.breath-message {
+  padding: 12px 16px;
+  margin: 6px 0 10px;
+  background: rgba(0, 229, 255, 0.04);
+  border: 1px solid rgba(0, 229, 255, 0.18);
+  border-left: 3px solid var(--ghost);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  animation: fadeSlideIn .3s ease-out;
+}
+.breath-message strong { color: var(--ghost); }
+.breath-message .breath-cmd { color: var(--accent); }
+
+/* ── Pause Overlay ───────────────────────────────────────────────────────── */
+.pause-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000000;
+  z-index: 9900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+  animation: fadeIn .3s ease-out;
+}
+
+.pause-content {
+  text-align: center;
+  max-width: 480px;
+  padding: 32px;
+}
+
+.pause-title {
+  font-size: 13px;
+  letter-spacing: 5px;
+  color: var(--ghost);
+  margin-bottom: 24px;
+  text-transform: uppercase;
+  text-shadow: var(--glow-sm);
+}
+
+.pause-body {
+  font-size: 17px;
+  color: var(--text-secondary);
+  line-height: 2.2;
+  margin-bottom: 28px;
+}
+
+.pause-hint {
+  font-size: 12px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  margin-bottom: 24px;
+  line-height: 1.8;
+}
+.pause-hint strong { color: var(--accent); }
+
+.pause-resume-btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 3px;
+  padding: 10px 28px;
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.pause-resume-btn:hover { background: rgba(0,255,159,.1); box-shadow: var(--glow-sm); }
+
+/* ── Quit Overlay ────────────────────────────────────────────────────────── */
+.quit-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000000;
+  z-index: 9900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  animation: fadeIn .3s ease-out;
+}
+
+.quit-content {
+  text-align: center;
+  max-width: 440px;
+  padding: 32px;
+}
+
+.quit-title {
+  font-size: 13px;
+  letter-spacing: 5px;
+  color: var(--ghost);
+  margin-bottom: 24px;
+  text-transform: uppercase;
+  text-shadow: var(--glow-sm);
+}
+
+.quit-body {
+  font-size: 17px;
+  color: var(--text-secondary);
+  line-height: 2.2;
+  margin-bottom: 12px;
+}
+
+.quit-sub {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 30px;
+  letter-spacing: 0.5px;
+}
+
+.quit-return-btn {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  padding: 8px 22px;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--text-dim);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.quit-return-btn:hover { color: var(--ghost); border-color: var(--ghost); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LOW VISION ACCESSIBILITY — Ghost Protocol (Step 21)
+   WCAG 1.4.4 Resize Text, 1.4.10 Reflow, 1.4.12 Text Spacing.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Minimum font-size: 0.875rem (14px) ─────────────────────────────────────
+   All UI chrome, labels, and metadata raised to the 14px minimum.
+   These overrides come last in the cascade and apply where earlier rules
+   used sizes below 14px (9px–13px). No !important needed — later source wins
+   for equal-specificity rules. The kb-help-panel h2 !important is fixed inline.
+   ─────────────────────────────────────────────────────────────────────────── */
+.sidebar-heading, .rp-heading,
+.phase-badge, .alert-badge, .morale-badge,
+.turn-counter, .telemetry-link, .new-session-btn,
+.crew-name, .crew-status, .crew-notes, .health-pct, .crew-last,
+.objective-item, .flag-item, .empty-msg,
+.mlw-header, .mlw-count,
+.log-entry, .log-time, .log-label,
+.send-btn,
+.rp-idle, .ps-icon, .ps-name,
+.rp-iq-meta, .iq-mode-azure, .iq-mode-local, .iq-hits,
+.rp-iq-query, .rp-iq-item, .iq-label, .iq-file, .rp-iq-snippet,
+.rp-agent, .rp-agent-name, .rp-agent-role,
+.rp-dice-line, .rp-dice-result, .rp-stat-label, .rp-stat-val,
+.ascii-banner, .iq-file-label, .iq-snippet,
+.agent-card-name, .agent-card-role,
+.gm-label, .phase-advance, .system-message, .processing,
+.dice-block, .dice-label, .dice-equation,
+.vex-modal-header, .vex-modal-sub, .vex-warning-icon,
+.vex-choices-hdr, .vex-choice-title, .vex-choice-desc, .vex-choice-risk,
+.a11y-btn, .kb-help-btn,
+.kb-table, .kb-table th, .kb-key, .kb-desc, .kb-close-btn,
+.kb-section-head td,
+.skip-link,
+.prompt-hint,
+.vex-prewarn-header, .vex-prewarn-text,
+.vex-prewarn-continue-btn, .vex-prewarn-skip-btn, .vex-prewarn-skip-hint,
+.ca-header, .ca-body, .ca-footer-note, .ca-btn-primary, .ca-btn-secondary,
+.breath-message,
+.pause-title, .pause-hint, .pause-resume-btn,
+.quit-title, .quit-sub, .quit-return-btn,
+.focus-next-btn, .focus-next-count,
+[data-tooltip]::after,
+.app-footer a {
+  font-size: 0.875rem; /* 14px — low-vision minimum */
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SIDEBAR OVERFLOW FIXES
+   Prevents text from escaping sidebar boundaries on any viewport width.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.sidebar {
+  min-width: 160px;
+  overflow-x: hidden;
+}
+
+/* Truncate single-line sidebar text items */
+.sidebar-heading,
+.crew-name,
+.crew-status,
+.crew-notes,
+.empty-msg {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Objectives: wrap normally — text is sentence-length */
+.objective-item {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* World flags: two-column row — name truncates, value never wraps */
+.flag-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.flag-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+}
+
+.flag-value {
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding-left: 4px;
+}
+
+/* Crew health percentage — fixed width, never wraps */
+.health-pct { flex-shrink: 0; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   >1024px  — full 3-column (desktop)
+   768–1024 — 2-column: sidebar 140px + chat (tablet)
+   <768px   — 1-column: chat only + crew drawer (mobile)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Tablet (768 – 1024px) ─────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  :root { --sidebar-w: 8.75rem; } /* 140px */
+  .main {
+    grid-template-columns: var(--sidebar-w) 1fr;
+  }
+  .reasoning-panel {
+    display: none;
+  }
+  .header {
+    height: auto;
+    min-height: var(--header-h);
+    flex-wrap: wrap;
+    padding: 4px 12px;
+    gap: 6px;
+  }
+  .app {
+    grid-template-rows: auto 1fr;
+    height: 100dvh;
+  }
+  html, body { overflow: auto; }
+  /* Hide crew toggle on tablet — sidebar is always visible */
+  .crew-toggle-btn { display: none !important; }
+}
+
+/* ── Mobile (<768px) ───────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  :root { --sidebar-w: 200px; } /* drawer width */
+
+  /* Chat only — full width */
+  .main {
+    grid-template-columns: 1fr;
+  }
+  .reasoning-panel {
+    display: none;
+  }
+
+  /* Sidebar becomes an off-canvas drawer */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: var(--sidebar-w);
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    border-right: 1px solid var(--border-bright);
+    box-shadow: 4px 0 24px rgba(0,0,0,.7);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .sidebar.drawer-open {
+    transform: translateX(0);
+  }
+
+  /* Backdrop */
+  .crew-drawer-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.65);
+    z-index: 199;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .crew-drawer-backdrop.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Mobile header — compact single line */
+  .header {
+    height: auto;
+    min-height: 2.75rem;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    padding: 6px 10px;
+    gap: 8px;
+  }
+  .header-title {
+    font-size: 11px;
+    letter-spacing: 2px;
+    white-space: nowrap;
+  }
+  .header-sep    { display: none; }
+  .morale-badge  { display: none; }
+  .a11y-controls { display: none; }
+  .header-right  { display: none; }
+
+  /* Show crew toggle button */
+  .crew-toggle-btn {
+    display: inline-flex !important;
+    margin-left: auto;
+  }
+
+  /* Phase + alert badges shrink */
+  .phase-badge,
+  .alert-badge {
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 2px 6px;
+  }
+
+  html, body { overflow: auto; }
+}
+
+/* ── Crew drawer toggle button (hidden on desktop/tablet) ──────────────── */
+.crew-toggle-btn {
+  display: none;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--ghost);
+  background: transparent;
+  border: 1px solid var(--ghost);
+  border-radius: var(--radius);
+  padding: 3px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  min-height: 2.75rem; /* WCAG 2.5.5 */
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.crew-toggle-btn:hover {
+  background: rgba(0,229,255,.08);
+  box-shadow: 0 0 8px rgba(0,229,255,.2);
+}
+
+/* Backdrop: hidden by default on all sizes */
+.crew-drawer-backdrop {
+  display: none;
+}
+
+/* Body-class accessibility modes keep their column rules even at narrow widths */
+/* (simple-mode, focus-mode, zen-mode already use grid-template-columns: 1fr !important) */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILITY ACCESSIBILITY — Ghost Protocol (Step 23)
+   WCAG 2.5.5 Target Size (Enhanced): 44×44 CSS px minimum on all controls.
+   WCAG 2.5.3 Label in Name: visible labels contained in accessible names.
+   WCAG 2.2.1 Timing Adjustable: no time limits exist in this application.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 44×44 px minimum click targets ─────────────────────────────────────── */
+.send-btn,
+.new-session-btn,
+.telemetry-link,
+.kb-help-btn,
+.skip-link,
+.vex-prewarn-continue-btn,
+.vex-prewarn-skip-btn,
+.ca-btn-primary,
+.ca-btn-secondary,
+.pause-resume-btn,
+.quit-return-btn,
+.focus-next-btn {
+  min-height: 2.75rem; /* 44px — WCAG 2.5.5 Enhanced */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* kb-close-btn is display:block — flex preserves margin:auto centering */
+.kb-close-btn {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Compact square accessibility toggles: 44×44 in both dimensions */
+.a11y-btn {
+  min-height: 2.75rem;
+  min-width:  2.75rem;
+  /* display:inline-flex and align-items:center already set in main rules */
+}
+
+/* ── Visible input label for voice control compatibility ─────────────────── */
+.input-label {
+  color: var(--ghost);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem; /* 11px */
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-right: 6px;
+  cursor: default;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   UI IMPROVEMENTS v3 — Ghost Protocol
+   Items 1-5: button pills, compact glitch title, Vex crew entry,
+              prominent input, Foundry IQ first-query animation.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Grow input-area to fit 48px input + 10px top/bottom padding */
+:root { --input-h: 4.25rem; }
+
+/* ── 1. A11Y button labels — pill shape, full words ─────────────────────── */
+.a11y-btn {
+  min-width: unset;          /* width driven by text, not forced 44px square */
+  border-radius: 999px;      /* pill */
+  padding: 4px 12px;
+  font-size: 0.875rem;       /* keep 14px low-vision minimum */
+  letter-spacing: 0;
+}
+
+/* ── 2. Compact glitch title (replaces full ASCII art banner) ───────────── */
+.glitch-title-wrap {
+  max-height: 80px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+}
+
+.glitch-title {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  color: var(--ghost);
+  letter-spacing: 7px;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px rgba(0, 229, 255, 0.55);
+  position: relative;
+  display: inline-block;
+  animation: glitch-text 5s infinite;
+  line-height: 1.15;
+}
+
+.glitch-title::before,
+.glitch-title::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.glitch-title::before {
+  color: var(--danger);
+  text-shadow: none;
+  clip-path: polygon(0 15%, 100% 15%, 100% 48%, 0 48%);
+  animation: glitch-before 5s infinite;
+  opacity: 0;
+}
+
+.glitch-title::after {
+  color: #00b4ff;
+  text-shadow: none;
+  clip-path: polygon(0 55%, 100% 55%, 100% 85%, 0 85%);
+  animation: glitch-after 5s infinite;
+  opacity: 0;
+}
+
+.glitch-sub {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  letter-spacing: 4px;
+  margin-top: 5px;
+  text-transform: uppercase;
+}
+
+@keyframes glitch-text {
+  0%, 86%, 100% { transform: none; }
+  87%           { transform: skewX(-3deg) translateX(2px); }
+  88%           { transform: skewX(2deg) translateX(-2px); }
+  89%           { transform: none; }
+  92%           { transform: translateX(1px); }
+  93%           { transform: none; }
+}
+
+@keyframes glitch-before {
+  0%, 86%, 100% { opacity: 0; transform: none; }
+  87%           { opacity: 0.9; transform: translateX(-4px); }
+  88%           { opacity: 0.6; transform: translateX(2px); }
+  89%           { opacity: 0; }
+}
+
+@keyframes glitch-after {
+  0%, 86%, 100% { opacity: 0; transform: none; }
+  87%           { opacity: 0.9; transform: translateX(4px); }
+  88%           { opacity: 0.5; transform: translateX(-2px); }
+  89%           { opacity: 0; }
+}
+
+body.high-contrast .glitch-title::before,
+body.high-contrast .glitch-title::after { display: none; }
+body.high-contrast .glitch-title { animation: none; color: #ffff00; text-shadow: none; }
+body.reduce-motion .glitch-title { animation: none; }
+body.reduce-motion .glitch-title::before,
+body.reduce-motion .glitch-title::after { display: none; }
+
+/* ── 3. Vex — unaffiliated crew entry ───────────────────────────────────── */
+.crew-vex-separator {
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(255, 102, 0, 0.25), transparent);
+  margin: 7px 0 5px;
+}
+
+.crew-member.crew-vex .crew-name { color: var(--vex); }
+
+.crew-status.unaffiliated {
+  color: var(--vex) !important;
+  font-size: 0.6875rem;
+  letter-spacing: 0.5px;
+  opacity: 0.9;
+}
+
+.health-pct.vex-unknown {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.health-fill.vex-unknown {
+  width: 100% !important;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 102, 0, 0.25) 0px, rgba(255, 102, 0, 0.25) 5px,
+    transparent 5px, transparent 10px
+  );
+  background-size: 10px 100%;
+  animation: vex-bar-scroll 1.5s linear infinite;
+}
+
+@keyframes vex-bar-scroll {
+  from { background-position: 0 0; }
+  to   { background-position: 10px 0; }
+}
+
+body.reduce-motion .health-fill.vex-unknown { animation: none; }
+
+/* ── 4. Input area — more prominent ─────────────────────────────────────── */
+.input-area { gap: 10px; }
+
+#playerInput {
+  height: 3rem;
+  padding: 0 14px;
+  background: rgba(0, 229, 255, 0.04);
+  border: 1px solid rgba(0, 229, 255, 0.18);
+  border-radius: var(--radius);
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+#playerInput:focus,
+#playerInput:focus-visible {
+  background: rgba(0, 229, 255, 0.07);
+  border-color: var(--ghost);
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.2), 0 0 14px rgba(0, 229, 255, 0.14) !important;
+}
+
+#playerInput.input-idle {
+  animation: input-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes input-pulse {
+  0%, 100% { border-color: rgba(0, 229, 255, 0.18); }
+  50%       { border-color: rgba(0, 229, 255, 0.52);
+              box-shadow: 0 0 10px rgba(0, 229, 255, 0.12); }
+}
+
+body.reduce-motion #playerInput.input-idle { animation: none !important; }
+
+.send-btn {
+  height: 3rem;
+  padding: 0 22px;
+  font-size: 0.875rem;
+  letter-spacing: 3px;
+  color: var(--ghost);
+  border-color: var(--ghost);
+  background: rgba(0, 229, 255, 0.07);
+  box-shadow: 0 0 6px rgba(0, 229, 255, 0.12);
+}
+
+.send-btn:hover:not(:disabled) {
+  background: rgba(0, 229, 255, 0.2);
+  box-shadow: 0 0 18px rgba(0, 229, 255, 0.4), 0 0 4px rgba(0, 229, 255, 0.2);
+  color: #fff;
+}
+
+.send-btn:active:not(:disabled) {
+  background: rgba(0, 229, 255, 0.28);
+}
+
+/* ── 5. Foundry IQ — first-query flash + typewriter ─────────────────────── */
+@keyframes iq-panel-flash {
+  0%   { background: transparent; }
+  20%  { background: rgba(0, 229, 255, 0.09);
+         box-shadow: 0 0 20px rgba(0, 229, 255, 0.14) inset; }
+  100% { background: transparent; box-shadow: none; }
+}
+
+.rp-section.iq-flash { animation: iq-panel-flash 0.8s ease-out forwards; }
+
+@keyframes iq-type {
+  from { width: 0; opacity: 0.5; }
+  to   { width: 100%; opacity: 1; }
+}
+
+.rp-iq-query.iq-typewriter {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: iq-type 0.7s steps(35, end) forwards;
+}
+
+.rp-iq-sources.iq-cite-fade {
+  opacity: 0;
+  animation: fadeSlideIn 0.5s ease-out 0.65s both;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   UI FIXES v4
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Sidebar width fix (Fix 5) ──────────────────────────────────────────── */
+:root { --sidebar-w: 175px; }
+.sidebar { min-width: 175px; }
+
+/* ── Objectives max-width guard (Fix 6) ─────────────────────────────────── */
+.objective-item {
+  max-width: 100%;
+  overflow: hidden;
+}
+.objective-item > span,
+.objective-item > div {
+  min-width: 0;
+  overflow: hidden;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* ── Right panel font sizes (Fix 4) ─────────────────────────────────────── */
+.rp-heading    { font-size: 11px; }
+.rp-idle       { font-size: 12px; }
+.rp-iq-meta    { font-size: 11px; }
+.iq-mode-azure,
+.iq-mode-local { font-size: 11px; }
+.iq-hits       { font-size: 11px; }
+.rp-iq-query   { font-size: 12px; }
+.rp-iq-item    { font-size: 12px; }
+.iq-file       { font-size: 12px; }
+.rp-iq-snippet { font-size: 11px; }
+.rp-agent-role { font-size: 11px; }
+.rp-stat-label { font-size: 11px; }
+.ps-name       { font-size: 12px; }
+
+/* ── Display menu dropdown (Fix 3) ──────────────────────────────────────── */
+.display-menu-wrap {
+  position: relative;
+}
+
+.display-menu-btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius);
+  padding: 4px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 2.75rem; /* WCAG 2.5.5 */
+  transition: color .15s, border-color .15s, box-shadow .15s;
+}
+.display-menu-btn:hover {
+  color: var(--ghost);
+  border-color: var(--ghost);
+  box-shadow: 0 0 8px rgba(0,229,255,.15);
+}
+
+.display-menu-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 200px;
+  background: var(--bg-2);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0,0,0,.6), 0 0 12px rgba(0,229,255,.06);
+  z-index: 600;
+  padding: 6px 0;
+  display: flex;
+  flex-direction: column;
+}
+/* Ensure [hidden] attribute beats display:flex above */
+.display-menu-panel[hidden] { display: none !important; }
+
+.dm-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: background .1s;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .5px;
+  color: var(--text-secondary);
+  user-select: none;
+  text-decoration: none;
+}
+.dm-item:hover { background: rgba(0,229,255,.06); color: var(--text-primary); }
+
+.dm-chk {
+  width: 13px; height: 13px;
+  accent-color: var(--ghost);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.dm-label { flex: 1; }
+
+/* Font size row */
+.dm-font-row  { justify-content: space-between; cursor: default; }
+.dm-font-row:hover { background: transparent; color: var(--text-secondary); }
+.dm-font-btns { display: flex; align-items: center; gap: 6px; }
+.dm-font-btn  {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ghost);
+  background: transparent;
+  border: 1px solid var(--border-bright);
+  border-radius: 3px;
+  padding: 2px 6px;
+  cursor: pointer;
+  min-height: 1.75rem;
+  min-width: 1.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .1s, box-shadow .1s;
+}
+.dm-font-btn:hover:not(:disabled) {
+  background: rgba(0,229,255,.1);
+  box-shadow: 0 0 6px rgba(0,229,255,.2);
+}
+.dm-font-btn:disabled { opacity: .35; cursor: default; }
+.dm-font-cur {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  min-width: 48px;
+  text-align: center;
+  letter-spacing: .5px;
+}
+
+/* Response length row */
+.dm-response-row { justify-content: space-between; cursor: default; }
+.dm-response-row:hover { background: transparent; color: var(--text-secondary); }
+.dm-cycle-btn {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--ghost);
+  background: transparent;
+  border: 1px solid var(--border-bright);
+  border-radius: 3px;
+  padding: 2px 8px;
+  cursor: pointer;
+  min-height: 1.75rem;
+  white-space: nowrap;
+  transition: background .1s;
+}
+.dm-cycle-btn:hover {
+  background: rgba(0,229,255,.1);
+}
+
+.dm-separator {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+
+.dm-link { text-decoration: none; }
+
+/* Hide the old a11y-controls wrapper (buttons now in dropdown) */
+.a11y-controls { display: none !important; }
+
+/* On mobile: also hide the display menu (header is very compact) */
+@media (max-width: 767px) {
+  .display-menu-wrap { display: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   UI FIXES v5 — Sidebar width, crew names, right panel, tooltip
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Sidebar: 200px, full crew names ────────────────────────────────────── */
+:root { --sidebar-w: 200px; }
+.sidebar { min-width: 200px; }
+
+/* Crew top: dot + icon in one row, name+status stacked in .crew-info column */
+.crew-top {
+  align-items: flex-start; /* align dot with top of name */
+  gap: 6px;
+}
+.crew-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.crew-name {
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.crew-status {
+  font-size: 9px;
+  letter-spacing: 0;
+}
+.health-pct { font-size: 11px; }
+
+/* Align dot vertically with first text line */
+.crew-dot { margin-top: 3px; }
+
+/* ── Right reasoning panel: 260px min, readable font sizes ──────────────── */
+:root { --rp-w: 260px; }
+.reasoning-panel { min-width: 260px; }
+
+/* Reduce main chat padding so all three columns fit at 1280px */
+.output      { padding: 16px 14px; }
+.input-area  { padding: 10px 14px; }
+.mission-log-wrap { padding: 8px 14px; }
+
+/* Right panel font sizes — all content text ≥ 12px */
+.rp-heading     { font-size: 11px; letter-spacing: 2px; }
+.rp-idle        { font-size: 12px; }
+.rp-iq-meta     { font-size: 11px; }
+.iq-mode-azure,
+.iq-mode-local  { font-size: 11px; }
+.iq-hits        { font-size: 11px; }
+.rp-iq-query    { font-size: 13px; font-style: italic; }
+.rp-iq-item     { font-size: 12px; }
+.iq-file        { font-size: 12px; font-weight: bold; }
+.rp-iq-snippet  { font-size: 11px; }
+.rp-agent-name  { font-size: 13px; }
+.rp-agent-role  { font-size: 11px; }
+.rp-stat-label  { font-size: 11px; }
+.rp-stat-val    { font-size: 14px; font-weight: bold; }
+.ps-name        { font-size: 12px; }
+
+/* ── Kill the CSS ::after tooltip entirely; JS tooltip handles it ─────────── */
+[data-tooltip]::after {
+  display: none !important;
+  opacity: 0 !important;
+}
+[data-tooltip]:hover::after,
+[data-tooltip]:focus-visible::after {
+  display: none !important;
+  opacity: 0 !important;
+}
+
+/* ── JS Tooltip box ─────────────────────────────────────────────────────── */
+.gp-tooltip {
+  position: absolute;
+  top: 0; left: 0;
+  z-index: 1000;
+  background: var(--bg-2);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius);
+  padding: 4px 10px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.5);
+}
+.gp-tooltip.visible { opacity: 1; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RIGHT PANEL CRITICAL FIX
+   Root cause: v4/v5 font-size rules in this file were REDUCING right panel
+   text below the 14px set by the low-vision mega-rule at line 1738.
+   Solution: !important block at file end wins all cascade conflicts.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Lock the three-column grid: sidebar 200px, right panel 280px */
+.main { grid-template-columns: 200px 1fr 280px !important; }
+:root { --rp-w: 280px; }
+
+/* Panel container */
+.reasoning-panel {
+  min-width: 280px !important;
+  font-size: 13px !important;
+}
+
+/* Baseline: every element inside gets at least 12px + decent line-height */
+.reasoning-panel * {
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+}
+
+/* Section padding + visible dividers */
+.reasoning-panel .rp-section {
+  padding: 12px 14px !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+}
+
+/* Section headers — 13px, neon green so "//" labels are readable */
+.reasoning-panel .rp-heading {
+  font-size: 13px !important;
+  font-weight: bold !important;
+  letter-spacing: 3px !important;
+  color: #00ff9f !important;
+  margin-bottom: 10px !important;
+  text-transform: uppercase !important;
+}
+
+/* Idle placeholder — 13px, muted grey */
+.reasoning-panel .rp-idle {
+  font-size: 13px !important;
+  color: #666666 !important;
+}
+
+/* Phase progress step names */
+.reasoning-panel .ps-name { font-size: 13px !important; }
+.reasoning-panel .ps-icon { font-size: 13px !important; }
+
+/* Foundry IQ — query text */
+.reasoning-panel .rp-iq-meta  { font-size: 12px !important; }
+.reasoning-panel .iq-mode-azure,
+.reasoning-panel .iq-mode-local { font-size: 12px !important; }
+.reasoning-panel .iq-hits     { font-size: 12px !important; }
+.reasoning-panel .rp-iq-query {
+  font-size: 14px !important;
+  color: var(--ghost) !important;
+  font-style: italic !important;
+  margin-bottom: 10px !important;
+}
+
+/* Foundry IQ — citation filename */
+.reasoning-panel .iq-file {
+  font-size: 13px !important;
+  font-weight: bold !important;
+  color: var(--accent) !important;
+}
+
+/* Foundry IQ — snippet */
+.reasoning-panel .rp-iq-snippet {
+  font-size: 12px !important;
+  color: var(--text-secondary) !important;
+  font-style: italic !important;
+  line-height: 1.5 !important;
+}
+
+/* Agents consulted — names and roles */
+.reasoning-panel .rp-agent-name {
+  font-size: 14px !important;
+  font-weight: bold !important;
+  letter-spacing: 1px !important;
+}
+.reasoning-panel .rp-agent-role {
+  font-size: 12px !important;
+  color: var(--text-dim) !important;
+}
+.reasoning-panel .agent-card-icon {
+  font-size: 14px !important;
+}
+
+/* Last roll — dice value already large, keep it */
+.reasoning-panel .rp-dice-val  { font-size: 24px !important; }
+.reasoning-panel .rp-dice-result { font-size: 13px !important; }
+.reasoning-panel .rp-dice-line { font-size: 13px !important; }
+
+/* Turn stats — label and value */
+.reasoning-panel .rp-stat-label {
+  font-size: 12px !important;
+  letter-spacing: 1px !important;
+  color: var(--text-dim) !important;
+}
+.reasoning-panel .rp-stat-val {
+  font-size: 16px !important;
+  font-weight: bold !important;
+  color: var(--accent) !important;
+  letter-spacing: 1px !important;
+}
+
+/* Main chat padding: tighter to give right panel room */
+.output           { padding: 14px 12px !important; }
+.input-area       { padding: 10px 12px !important; }
+.mission-log-wrap { padding: 8px 12px !important; }
+
+/* Keep accessibility modes that collapse to 1-col working */
+body.simple-mode .main,
+body.focus-mode .main,
+body.zen-mode .main { grid-template-columns: 1fr !important; }
+
+/* Tablet: right panel still hidden */
+@media (max-width: 1024px) {
+  .main { grid-template-columns: 200px 1fr !important; }
+  .reasoning-panel { display: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SIDEBAR HEALTH BARS — visibility fix
+   The original .health-bar { height: 3px } is effectively invisible.
+   Increase to 8px, full opacity fill, clear track colour.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.health-bar-wrap {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  margin-top: 5px !important;
+  padding: 2px 0 !important;
+}
+
+.health-bar {
+  flex: 1 !important;
+  height: 8px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-radius: 4px !important;
+  overflow: hidden !important;
+}
+
+.health-fill {
+  height: 100% !important;
+  border-radius: 4px !important;
+  opacity: 1 !important;
+  transition: width 0.5s ease !important;
+}
+
+.health-fill.wounded  { filter: brightness(0.75) !important; }
+.health-fill.critical { filter: brightness(0.5) !important; animation: blink 1s ease-in-out infinite !important; }
+
+.health-pct {
+  font-size: 11px !important;
+  color: var(--text-secondary) !important;
+  width: 30px !important;
+  text-align: right !important;
+  flex-shrink: 0 !important;
+}
+
+/* Vex unknown bar — striped scroll pattern */
+.health-fill.vex-unknown {
+  width: 100% !important;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 102, 0, 0.35) 0px, rgba(255, 102, 0, 0.35) 5px,
+    transparent 5px, transparent 10px
+  ) !important;
+  animation: vex-bar-scroll 1.5s linear infinite !important;
+}
+body.reduce-motion .health-fill.vex-unknown { animation: none !important; }
+
+.health-pct.vex-unknown {
+  color: var(--vex) !important;
+  font-style: italic !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SUGGESTED ACTIONS PANEL
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.suggestion-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 4px;
+}
+
+.suggestion-btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  padding: 5px 11px;
+  background: rgba(0, 229, 255, 0.04);
+  color: var(--ghost);
+  border: 1px solid rgba(0, 229, 255, 0.22);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s, color 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.suggestion-btn::before {
+  content: '>';
+  color: var(--text-dim);
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.suggestion-btn:hover {
+  background: rgba(0, 229, 255, 0.1);
+  border-color: rgba(0, 229, 255, 0.55);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.12);
+  color: #fff;
+}
+
+.suggestion-btn:active {
+  background: rgba(0, 229, 255, 0.18);
+}
+
+/* Phase advance hint */
+.phase-hint {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  margin: 2px 0 8px;
+  letter-spacing: 0.5px;
+}
+
+.phase-hint-cmd { color: var(--accent); }
+
+/* Opening tutorial example command */
+.gm-example-cmd {
+  color: var(--ghost);
+  font-style: italic;
+  cursor: pointer;
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+}

@@ -1,0 +1,2380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Ghost Protocol — Multi-agent cyberpunk heist RPG powered by Azure OpenAI. Six AI agents collaborate to run a heist in Toronto 2047.">
+  <title>Ghost Protocol — Toronto 2047</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- ── Reading Guide Line (follows cursor when /guide is active) ────────── -->
+<div id="readingGuideLine" aria-hidden="true"></div>
+
+<!-- ── Content Advisory (shown on load, dismissed on Begin Mission) ────────── -->
+<div class="ca-overlay" id="contentAdvisoryOverlay"
+     role="dialog" aria-modal="true" aria-labelledby="caTitle"
+     aria-describedby="caDesc">
+  <div class="ca-modal">
+    <div class="ca-header">
+      <span class="ca-icon" aria-hidden="true">◈</span>
+      <span id="caTitle">GHOST PROTOCOL — CONTENT ADVISORY</span>
+    </div>
+    <div class="ca-body" id="caDesc">
+      <p>This experience contains themes of:</p>
+      <ul class="ca-list">
+        <li>Corporate surveillance and systemic control</li>
+        <li>Mild stylised violence — no graphic depictions</li>
+        <li>Moral ambiguity and difficult choices</li>
+      </ul>
+      <p>All content is fictional. Toronto 2047 is a narrative setting for collaborative storytelling.</p>
+      <div class="ca-footer-note">
+        Type <strong>/pause</strong> anytime to step away safely — your progress is always saved.<br>
+        Type <strong>/quit</strong> for a safe exit with an encouraging word from Ghost.
+      </div>
+    </div>
+    <div class="ca-actions">
+      <button id="caBeginBtn" class="ca-btn-primary" autofocus
+              aria-label="Accept the content advisory and begin the mission">[ BEGIN MISSION ]</button>
+      <button id="caLearnBtn" class="ca-btn-secondary"
+              aria-label="Open accessibility and content information in a new tab">[ CONTENT DETAILS ]</button>
+      <button id="caSettingsBtn" class="ca-btn-secondary"
+              aria-label="Close this notice and open accessibility settings">[ ACCESSIBILITY ]</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Pause Overlay ──────────────────────────────────────────────────────── -->
+<div class="pause-overlay" id="pauseOverlay" style="display:none"
+     role="dialog" aria-modal="false" aria-labelledby="pauseTitle">
+  <div class="pause-content">
+    <div class="pause-title" id="pauseTitle">// MISSION PAUSED</div>
+    <div class="pause-body">
+      All systems holding.<br>
+      Your crew is waiting — no rush.<br>
+      Your progress is saved.
+    </div>
+    <div class="pause-hint">
+      Take your time.<br>
+      Type <strong>/resume</strong> or click the button below when you're ready.
+    </div>
+    <button class="pause-resume-btn" id="pauseResumeBtn"
+            aria-label="Resume the mission">[ RESUME MISSION ]</button>
+  </div>
+</div>
+
+<!-- ── Quit Overlay ───────────────────────────────────────────────────────── -->
+<div class="quit-overlay" id="quitOverlay" style="display:none"
+     role="dialog" aria-modal="false" aria-labelledby="quitTitle">
+  <div class="quit-content">
+    <div class="quit-title" id="quitTitle">// MISSION SAVED</div>
+    <div class="quit-body">
+      Progress saved to secure storage.<br>
+      Your crew will be here when you return.<br><br>
+      Well played, runner.
+    </div>
+    <div class="quit-sub">You can safely close this tab.</div>
+    <button class="quit-return-btn" id="quitReturnBtn"
+            aria-label="Return to the mission">[ RETURN TO MISSION ]</button>
+  </div>
+</div>
+
+<!-- ── Skip Navigation ────────────────────────────────────────────────────── -->
+<a href="#main-content" class="skip-link">Skip to game input</a>
+
+<!-- ── Screen-Reader Live Regions (always present, visually hidden) ─────── -->
+<div id="srPolite"    role="status" aria-live="polite"    aria-atomic="true" class="sr-only"></div>
+<div id="srAssertive" role="alert"  aria-live="assertive" aria-atomic="true" class="sr-only"></div>
+
+<!-- ── Keyboard Shortcuts Panel ──────────────────────────────────────────── -->
+<div id="kbHelpOverlay" class="kb-help-overlay" role="dialog" aria-modal="true"
+     aria-labelledby="kbHelpTitle" hidden>
+  <div class="kb-help-panel">
+    <h2 id="kbHelpTitle">// KEYBOARD SHORTCUTS</h2>
+    <table class="kb-table" aria-label="Keyboard shortcuts reference">
+      <thead>
+        <tr><th scope="col">Key</th><th scope="col">Action</th></tr>
+      </thead>
+      <tbody>
+        <tr class="kb-section-head"><td colspan="2">Navigation</td></tr>
+        <tr><td class="kb-key">Tab / Shift+Tab</td><td class="kb-desc">Move between interactive elements</td></tr>
+        <tr><td class="kb-key">↑ Arrow</td><td class="kb-desc">Recall previous command from history</td></tr>
+        <tr><td class="kb-key">↓ Arrow</td><td class="kb-desc">Move forward through command history</td></tr>
+        <tr><td class="kb-key">Escape</td><td class="kb-desc">Clear the input field</td></tr>
+
+        <tr class="kb-section-head"><td colspan="2">Actions</td></tr>
+        <tr><td class="kb-key">Enter</td><td class="kb-desc">Submit your action to the crew</td></tr>
+        <tr><td class="kb-key">Ctrl+/ (or ⌘+/)</td><td class="kb-desc">Toggle this keyboard shortcuts panel</td></tr>
+
+        <tr class="kb-section-head"><td colspan="2">Accessibility Controls (header)</td></tr>
+        <tr><td class="kb-key">HC button</td><td class="kb-desc">Toggle high contrast mode (white on black, yellow highlights)</td></tr>
+        <tr><td class="kb-key">A / A+ / A++ button</td><td class="kb-desc">Cycle font size: Normal → Large (1.2×) → Extra Large (1.5×)</td></tr>
+        <tr><td class="kb-key">~ button</td><td class="kb-desc">Toggle reduce motion (disables all animations and transitions)</td></tr>
+        <tr><td class="kb-key">≡ button</td><td class="kb-desc">Toggle simple mode (hides sidebars, larger text, no animations)</td></tr>
+
+        <tr class="kb-section-head"><td colspan="2">Game Commands (type in input)</td></tr>
+        <tr><td class="kb-key">/help</td><td class="kb-desc">List all available commands in plain language</td></tr>
+        <tr><td class="kb-key">/status</td><td class="kb-desc">Current phase, alert level, crew health, turn count</td></tr>
+        <tr><td class="kb-key">/crew</td><td class="kb-desc">Detailed crew status and augmentations</td></tr>
+        <tr><td class="kb-key">/objectives</td><td class="kb-desc">Mission objectives for the current phase</td></tr>
+        <tr><td class="kb-key">/history</td><td class="kb-desc">Last 5 player actions</td></tr>
+        <tr><td class="kb-key">/advance</td><td class="kb-desc">Advance to the next heist phase</td></tr>
+
+        <tr class="kb-section-head"><td colspan="2">Neurodiversity / ADHD Accessibility</td></tr>
+        <tr><td class="kb-key">/focus</td><td class="kb-desc">Focus mode: hide sidebars, show one agent response at a time (press Enter or ↓ NEXT to advance)</td></tr>
+        <tr><td class="kb-key">/zen</td><td class="kb-desc">Zen mode: black background, white text, no animations, minimal chrome, large centred text</td></tr>
+        <tr><td class="kb-key">/guide</td><td class="kb-desc">Reading guide: horizontal line follows your cursor to track reading position</td></tr>
+        <tr><td class="kb-key">/brief</td><td class="kb-desc">Brief mode: agents reply in 3 sentences max — stored in game state, persists across turns</td></tr>
+        <tr><td class="kb-key">/normal</td><td class="kb-desc">Normal responses: default response length</td></tr>
+        <tr><td class="kb-key">/detailed</td><td class="kb-desc">Detailed responses: full rich narrative (saved across turns)</td></tr>
+        <tr><td class="kb-key">/skip</td><td class="kb-desc">Skip the Vex encounter when a content warning appears</td></tr>
+
+        <tr class="kb-section-head"><td colspan="2">Wellbeing</td></tr>
+        <tr><td class="kb-key">/pause</td><td class="kb-desc">Pause the mission — saves progress, shows a calm break screen. No time pressure.</td></tr>
+        <tr><td class="kb-key">/resume</td><td class="kb-desc">Resume after a pause</td></tr>
+        <tr><td class="kb-key">/quit</td><td class="kb-desc">Save and exit safely — shows an encouraging message. You are never penalised for stopping.</td></tr>
+      </tbody>
+    </table>
+    <button class="kb-close-btn" id="closeKbHelp" aria-label="Close keyboard shortcuts panel">[ CLOSE ]</button>
+  </div>
+</div>
+
+<!-- ── App Shell ──────────────────────────────────────────────────────────── -->
+<div class="app">
+
+  <!-- ── Header ──────────────────────────────────────────────────────────── -->
+  <header class="header" role="banner">
+    <h1 class="header-title" aria-label="Ghost Protocol — Multi-agent cyberpunk heist RPG">GHOST PROTOCOL</h1>
+    <span class="header-sep" aria-hidden="true">//</span>
+
+    <span class="phase-badge" id="phaseBadge"
+          role="status" aria-live="polite" aria-label="Current heist phase: Recon">RECON</span>
+    <span class="alert-badge cold" id="alertBadge"
+          role="alert" aria-live="assertive" aria-label="Alert level: Cold">ALERT: COLD</span>
+
+    <span class="morale-badge" id="moraleBadge"
+          role="status" aria-live="polite" aria-label="Crew morale: High">MORALE: HIGH</span>
+
+    <!-- Display settings dropdown -->
+    <div class="display-menu-wrap" id="displayMenuWrap">
+      <button id="displayMenuBtn" class="display-menu-btn" aria-haspopup="true" aria-expanded="false" aria-controls="displayMenuPanel">⚙ Display</button>
+      <div id="displayMenuPanel" class="display-menu-panel" role="menu" hidden>
+
+        <label class="dm-item" role="menuitem">
+          <input type="checkbox" id="highContrastChk" class="dm-chk" aria-label="High contrast mode">
+          <span class="dm-label">High Contrast</span>
+        </label>
+
+        <div class="dm-item dm-font-row" role="menuitem" aria-label="Font size controls">
+          <span class="dm-label">Text Size</span>
+          <div class="dm-font-btns">
+            <button id="fontSizeDecBtn" class="dm-font-btn" disabled aria-label="Decrease font size. Current: Normal.">A−</button>
+            <span id="dmFontLabel" class="dm-font-cur">Normal</span>
+            <button id="fontSizeIncBtn" class="dm-font-btn" aria-label="Increase font size. Current: Normal.">A+</button>
+          </div>
+        </div>
+
+        <label class="dm-item" role="menuitem">
+          <input type="checkbox" id="reduceMotionChk" class="dm-chk" aria-label="Reduce motion / No animations">
+          <span class="dm-label">No Animations</span>
+        </label>
+
+        <label class="dm-item" role="menuitem">
+          <input type="checkbox" id="simpleModeChk" class="dm-chk" aria-label="Simple mode — full-width chat, no sidebars">
+          <span class="dm-label">Simple Mode</span>
+        </label>
+
+        <div class="dm-item dm-response-row" role="menuitem" aria-label="Response length">
+          <span class="dm-label">Response</span>
+          <button id="responseLengthBtn" class="dm-cycle-btn" aria-label="Response length: Normal. Click to cycle.">Normal</button>
+        </div>
+
+        <div class="dm-separator" role="separator"></div>
+
+        <a href="/accessibility" class="dm-item dm-link" role="menuitem" aria-label="Open accessibility statement page">
+          <span class="dm-label">Accessibility Page ↗</span>
+        </a>
+
+        <!-- Hidden original IDs preserved so JS can still find them -->
+        <button id="highContrastBtn" hidden aria-pressed="false" aria-label="High contrast mode: off."></button>
+        <button id="reduceMotionBtn" hidden aria-pressed="false" aria-label="Reduce motion: off."></button>
+        <button id="simpleModeBtn"   hidden aria-pressed="false" aria-label="Simple mode: off."></button>
+      </div>
+    </div>
+
+    <!-- Mobile-only crew drawer toggle -->
+    <button id="crewToggleBtn" class="crew-toggle-btn" aria-label="Toggle crew status" aria-expanded="false" aria-controls="sidebar">[CREW]</button>
+
+    <div class="header-right">
+      <span class="turn-counter" id="turnCounter" aria-label="Turn counter" aria-live="polite">TURN 0</span>
+      <a class="telemetry-link" href="/dashboard" target="_blank" rel="noopener"
+         aria-label="Open telemetry dashboard in new tab">TELEMETRY</a>
+      <button class="new-session-btn" id="newSessionBtn"
+              aria-label="Start a new game session (current progress is saved)">NEW SESSION</button>
+      <button class="kb-help-btn" id="openKbHelp"
+              aria-label="Open keyboard shortcuts panel (Ctrl+/)"
+              title="Keyboard shortcuts (Ctrl+/)">⌨</button>
+    </div>
+  </header>
+
+  <!-- Mobile crew drawer backdrop -->
+  <div id="crewDrawerBackdrop" class="crew-drawer-backdrop" aria-hidden="true"></div>
+
+  <!-- ── 3-Column Main ──────────────────────────────────────────────────── -->
+  <main class="main" aria-label="Ghost Protocol game interface">
+
+    <!-- ── LEFT: Crew + Objectives + Flags ─────────────────────────────── -->
+    <aside class="sidebar" id="sidebar" aria-label="Crew status, objectives, and mission flags">
+
+      <section class="sidebar-section" aria-labelledby="crewHeading">
+        <h2 class="sidebar-heading" id="crewHeading">// CREW</h2>
+        <div id="crewStatus" aria-live="polite" aria-label="Crew member status"></div>
+      </section>
+
+      <section class="sidebar-section" aria-labelledby="objectivesHeading">
+        <h2 class="sidebar-heading" id="objectivesHeading">// OBJECTIVES</h2>
+        <div id="objectives" aria-live="polite" aria-label="Mission objectives"></div>
+      </section>
+
+      <section class="sidebar-section" aria-labelledby="flagsHeading">
+        <h2 class="sidebar-heading" id="flagsHeading">// WORLD FLAGS</h2>
+        <div id="worldFlags" aria-live="polite" aria-label="World state flags"></div>
+      </section>
+
+    </aside>
+
+    <!-- ── CENTER: Output + Mission Log + Input ─────────────────────────── -->
+    <div class="center-column">
+
+      <!-- Chat output — polite live region so screen readers announce additions -->
+      <div class="output" id="output"
+           role="region"
+           aria-label="Game narrative and agent responses"
+           aria-live="polite"
+           aria-relevant="additions"
+           aria-atomic="false">
+
+        <div class="intro-block" role="article" aria-label="Mission briefing">
+          <div class="intro-text">
+            <strong>Toronto 2047.</strong> Five megacorporations own the city.
+            You lead a six-agent heist crew. Type your actions below, or use <strong>/help</strong> for all commands.<br><br>
+            <strong>Mission:</strong> <span id="missionName">Operation GENESIS</span>
+            — Extract GenVault biodata from Nexus Corp Tower, sub-level B3.
+          </div>
+        </div>
+
+        <!-- Opening Ghost line -->
+        <div class="turn" role="article">
+          <div class="gm-narrative" aria-label="Ghost, Game Master, says:">
+            <div class="gm-header" aria-hidden="true">
+              <span class="gm-label">[GHOST]</span>
+              <span class="gm-sep"></span>
+            </div>
+            <div class="gm-body">You're patched in, crew. Nexus Tower. Sub-level B3. GenVault data — genomic profiles of eight million Toronto residents. We get in, we extract, we disappear. No names. No traces.
+
+Wraith has the perimeter mapped. Cipher's already sniffing the network. Shadow's watching the service entrance. Patch has the med kit staged.
+
+Give your crew orders or ask for intel.
+Try: <span class="gm-example-cmd">"scan the Nexus Corp Tower entrance"</span>
+Or type /help for all available commands.
+
+What's your move?</div>
+          </div>
+        </div>
+
+      </div><!-- /output -->
+
+      <!-- Scroll-to-bottom floating button — appears only when user has scrolled up -->
+      <button id="scrollToBottomBtn" class="scroll-to-bottom-btn"
+              aria-label="Scroll to latest message" title="Scroll to bottom">↓ LATEST</button>
+
+      <!-- Mission Log -->
+      <section class="mission-log-wrap" aria-labelledby="missionLogHeading">
+        <div class="mlw-header">
+          <h2 class="sidebar-heading" id="missionLogHeading" style="margin:0"
+              data-tooltip="Real-time log of all events, queries, and agent actions">// MISSION LOG</h2>
+          <span class="mlw-count" id="logCount" aria-live="polite" aria-label="Event count">0 events</span>
+        </div>
+        <div class="mission-log" id="missionLog"
+             role="log"
+             aria-label="Mission event log — live feed of all actions and agent responses"
+             aria-live="polite"
+             aria-relevant="additions"></div>
+      </section>
+
+      <!-- Input area — Tab order: input → send → new session → a11y controls -->
+      <div class="input-area" id="main-content">
+        <label for="playerInput" class="input-label">Enter your action</label>
+        <input type="text" id="playerInput"
+          placeholder="Enter your action… or /help for commands"
+          autocomplete="off"
+          autofocus
+          spellcheck="false"
+          aria-label="Enter your action or command"
+          aria-describedby="inputHint"
+          aria-autocomplete="list">
+        <span id="inputHint" class="sr-only">
+          Type an action in plain language, such as "Cipher, loop the camera feed."
+          Or use commands: /help, /status, /crew, /objectives, /history, /advance.
+          Press Enter or click SEND to submit. Use Up and Down arrows to recall previous commands.
+          Press Escape to clear the field.
+        </span>
+        <button class="send-btn" id="sendBtn" aria-label="Send action to the crew">SEND</button>
+      </div>
+      <div class="ai-disclosure">Ghost Protocol's crew agents are powered by Azure OpenAI (GPT-4o) via Microsoft Foundry. Responses are AI-generated.</div>
+
+    </div><!-- /center-column -->
+
+    <!-- ── RIGHT: Reasoning Panel ──────────────────────────────────────── -->
+    <aside class="reasoning-panel" aria-label="AI reasoning details and turn statistics">
+
+      <section class="rp-section" aria-labelledby="phaseProgressHeading">
+        <h2 class="rp-heading" id="phaseProgressHeading"
+            data-tooltip="The four phases of the heist: Recon, Infiltration, Execution, Extraction">// PHASE PROGRESS</h2>
+        <div class="phase-progress" id="phaseProgress"
+             role="list" aria-label="Heist phase progress"><!-- populated by JS --></div>
+      </section>
+
+      <section class="rp-section" aria-labelledby="foundryIQHeading">
+        <h2 class="rp-heading" id="foundryIQHeading"
+            data-tooltip="Azure AI Search knowledge base queried each turn. Shows which of the 8 lore documents were retrieved.">// FOUNDRY IQ</h2>
+        <div id="rpIQ" aria-live="polite" aria-label="Knowledge base retrieval results">
+          <div class="rp-idle">Awaiting first query…</div>
+        </div>
+      </section>
+
+      <section class="rp-section" aria-labelledby="agentsConsultedHeading">
+        <h2 class="rp-heading" id="agentsConsultedHeading"
+            data-tooltip="Which specialist agents were routed to this turn by the Game Master">// AGENTS CONSULTED</h2>
+        <div id="rpAgents" aria-live="polite" aria-label="Agents consulted this turn">
+          <div class="rp-idle">No agents this turn</div>
+        </div>
+      </section>
+
+      <section class="rp-section" aria-labelledby="lastRollHeading">
+        <h2 class="rp-heading" id="lastRollHeading"
+            data-tooltip="The d20 dice roll result for this turn. 20=critical success, 15+=success, 10+=partial, below=failure">// LAST ROLL</h2>
+        <div id="rpDice" aria-live="assertive" aria-label="Last dice roll result">
+          <div class="rp-idle">No roll this turn</div>
+        </div>
+      </section>
+
+      <section class="rp-section" aria-labelledby="turnStatsHeading">
+        <h2 class="rp-heading" id="turnStatsHeading"
+            data-tooltip="Response time and total tokens used for this turn's LLM calls">// TURN STATS</h2>
+        <div id="rpStats" aria-live="polite" aria-label="Turn performance statistics">
+          <div class="rp-idle">No data yet</div>
+        </div>
+      </section>
+
+    </aside>
+
+  </main><!-- /main -->
+
+</div><!-- /app -->
+
+<!-- Accessibility statement link (fixed, bottom-right) -->
+<footer class="app-footer">
+  <a href="/accessibility" aria-label="View accessibility statement for Ghost Protocol">Accessibility</a>
+</footer>
+
+<!-- ── Vex Encounter Modal ────────────────────────────────────────────────── -->
+<div class="vex-overlay" id="vexOverlay" style="display:none"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="vexModalTitle"
+     aria-describedby="vexModalDesc">
+  <div class="vex-modal">
+
+    <!-- Header -->
+    <div class="vex-modal-header" id="vexModalTitle">
+      <span class="vex-warning-icon" aria-hidden="true">⚠</span>
+      <span>VEX ENCOUNTER — EXECUTION PHASE</span>
+      <span class="vex-modal-sub" aria-hidden="true">Heist interrupted</span>
+    </div>
+    <p id="vexModalDesc" class="sr-only">
+      A rival operator named Vex has interrupted the heist. You must make a critical decision before continuing.
+      Choose A to accept her offer, B to reject her, or C to consult Patch for an ethical assessment first.
+    </p>
+
+    <!-- Ghost's announcement -->
+    <div class="vex-ghost-block">
+      <div class="gm-header" aria-hidden="true">
+        <span class="gm-label">[GHOST]</span>
+        <span class="gm-sep"></span>
+      </div>
+      <div class="gm-body" id="vexGhostText" aria-label="Ghost says:"></div>
+    </div>
+
+    <!-- Vex's offer -->
+    <div class="vex-offer-wrap">
+      <div class="agent-card vex" style="margin-bottom:0"
+           role="article" aria-label="Vex, Rival Operator, says:">
+        <div class="agent-card-header">
+          <span class="agent-card-name">[VEX]</span>
+          <span class="agent-card-role">Rival Operator</span>
+        </div>
+        <div class="agent-card-body" id="vexOfferText"></div>
+      </div>
+    </div>
+
+    <!-- Three-way choice -->
+    <div class="vex-choices">
+      <div class="vex-choices-hdr" id="vexChoicesLabel">MAKE YOUR CALL</div>
+      <div class="vex-choice-grid" role="group" aria-labelledby="vexChoicesLabel">
+
+        <button class="vex-choice-btn choice-a" id="vexChoiceA"
+                aria-label="Choice A: Accept Vex's offer. Objective path opens; crew loyalty decreases.">
+          <div class="vex-choice-key" aria-hidden="true">A</div>
+          <div class="vex-choice-content">
+            <div class="vex-choice-title">ACCEPT VEX'S OFFER</div>
+            <div class="vex-choice-desc">Take the shortcut. Objective path opens up.</div>
+            <div class="vex-choice-risk">Risk: Vex's terms apply — crew loyalty decreases</div>
+          </div>
+        </button>
+
+        <button class="vex-choice-btn choice-b" id="vexChoiceB"
+                aria-label="Choice B: Reject Vex. Work clean; extraction window narrows.">
+          <div class="vex-choice-key" aria-hidden="true">B</div>
+          <div class="vex-choice-content">
+            <div class="vex-choice-title">REJECT VEX</div>
+            <div class="vex-choice-desc">The crew works clean. No shortcuts.</div>
+            <div class="vex-choice-risk">Risk: Extraction window narrows — the hard way</div>
+          </div>
+        </button>
+
+        <button class="vex-choice-btn choice-c" id="vexChoiceC"
+                aria-label="Choice C: Ask Patch for an ethical assessment before deciding.">
+          <div class="vex-choice-key" aria-hidden="true">C</div>
+          <div class="vex-choice-content">
+            <div class="vex-choice-title">ASK PATCH FIRST</div>
+            <div class="vex-choice-desc">Get an ethical read before committing.</div>
+            <div class="vex-choice-risk">Reveals Patch's assessment — then choose A or B</div>
+          </div>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- Patch's ethical assessment — hidden until C clicked -->
+    <div class="vex-patch-wrap" id="vexPatchWrap" style="display:none"
+         aria-live="polite">
+      <div class="agent-card patch" style="margin-bottom:0"
+           role="article" aria-label="Patch, Fixer, ethical assessment:">
+        <div class="agent-card-header">
+          <span class="agent-card-name">[PATCH]</span>
+          <span class="agent-card-role">Ethical Assessment</span>
+        </div>
+        <div class="agent-card-body" id="vexPatchText"></div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /vexOverlay -->
+
+<script>
+// ── Constants ─────────────────────────────────────────────────────────────────
+const PHASES = ['recon', 'infiltration', 'execution', 'extraction'];
+
+const AGENT_COLORS = {
+  Ghost: 'ghost', Wraith: 'wraith', Cipher: 'cipher',
+  Shadow: 'shadow', Patch: 'patch', Vex: 'vex',
+};
+
+const AGENT_ROLES = {
+  Ghost: 'Game Master', Wraith: 'Enforcer', Cipher: 'Hacker',
+  Shadow: 'Infiltrator', Patch: 'Fixer', Vex: 'Rival Operator',
+};
+
+// Icons alongside color for agents (color-independent identification)
+const AGENT_ICONS = {
+  Ghost: '◈', Wraith: '⚔', Cipher: '⌘', Shadow: '◆', Patch: '✚', Vex: '⚡',
+};
+
+const SOURCE_FILES = {
+  WORLD: 'world_overview.md', CORPORATIONS: 'corporations.md',
+  DISTRICTS: 'districts.md',  CREW: 'crew_profiles.md',
+  HEISTS: 'heist_targets.md', FACTIONS: 'factions.md',
+  GEAR: 'items_and_gear.md',  RULES: 'homebrew_rules.md',
+};
+
+const DICE_LABELS = [
+  { min: 20, cls: 'critical-success', label: 'CRITICAL SUCCESS', dc: 20 },
+  { min: 15, cls: 'success',          label: 'SUCCESS',          dc: 15 },
+  { min: 10, cls: 'partial',          label: 'PARTIAL SUCCESS',  dc: 10 },
+  { min:  0, cls: 'failure',          label: 'FAILURE',          dc: null },
+];
+
+const HEALTH_PCT = { operational: 100, wounded: 50, critical: 15 };
+
+// Fixed agent display order (for consistent, predictable layout)
+const AGENT_ORDER = ['Ghost', 'Wraith', 'Cipher', 'Shadow', 'Patch', 'Vex'];
+
+// ── DOM refs ──────────────────────────────────────────────────────────────────
+const output        = document.getElementById('output');
+const playerInput   = document.getElementById('playerInput');
+const sendBtn       = document.getElementById('sendBtn');
+const phaseBadge    = document.getElementById('phaseBadge');
+const alertBadge    = document.getElementById('alertBadge');
+const turnCounter   = document.getElementById('turnCounter');
+const crewStatusEl  = document.getElementById('crewStatus');
+const objectivesEl  = document.getElementById('objectives');
+const worldFlagsEl  = document.getElementById('worldFlags');
+const missionName   = document.getElementById('missionName');
+const missionLog    = document.getElementById('missionLog');
+const logCountEl    = document.getElementById('logCount');
+const newSessionBtn = document.getElementById('newSessionBtn');
+const srPolite      = document.getElementById('srPolite');
+const srAssertive   = document.getElementById('srAssertive');
+const kbOverlay     = document.getElementById('kbHelpOverlay');
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let currentPhase   = 'recon';
+let _turnsInPhase  = 0;   // resets to 0 when phase changes
+let isProcessing   = false;
+let logEntryCount = 0;
+const crewLastAction = {};
+
+// Command history for arrow key navigation
+const cmdHistory  = [];
+let historyIdx    = -1;
+let savedInputVal = '';
+
+// ── Neurodiversity / ADHD Accessibility State ─────────────────────────────────
+let focusMode     = false;   // /focus — one agent response at a time
+let zenMode       = false;   // /zen   — minimal distraction-free UI
+let guideMode     = false;   // /guide — horizontal reading guide line
+
+// Response length: 'brief' | 'normal' | 'detailed' (sent with every API call)
+const RESPONSE_STYLES  = ['normal', 'brief', 'detailed'];
+const RESPONSE_LABELS  = ['Normal', 'Brief', 'Detailed'];
+const RESPONSE_CHARS   = ['Normal', 'Brief', 'Detailed'];
+let responseStyleIdx   = 0;
+let responseStyle      = 'normal';
+
+// Focus mode queue — DOM elements shown one at a time
+let focusQueue    = [];
+let focusNextWrap = null;   // re-used ↓ NEXT wrapper element
+
+// Vex content pre-warning state
+let pendingVexEncounter = null;
+let vexPreWarnEl        = null;
+
+// Mental health considerate design state
+let isPaused         = false;   // /pause — mission paused
+let advisoryShown    = true;    // content advisory overlay visible on load
+let _prevAlertLevel  = 'cold';  // track alert escalation for breath-message trigger
+
+// ── Screen-Reader Announce ────────────────────────────────────────────────────
+function srAnnounce(msg, priority = 'polite') {
+  const el = priority === 'assertive' ? srAssertive : srPolite;
+  el.textContent = '';
+  requestAnimationFrame(() => { el.textContent = msg; });
+}
+
+// ── Accessibility Toggles ─────────────────────────────────────────────────────
+const FONT_SIZES  = ['', 'font-large', 'font-xl'];
+const FONT_LABELS = ['Normal', 'Large', 'Extra Large'];
+let fontSizeIdx = 0;
+let _iqFirstQuery = true;
+
+function _applyFontSize(save = true) {
+  FONT_SIZES.forEach(c => { if (c) document.body.classList.remove(c); });
+  if (FONT_SIZES[fontSizeIdx]) document.body.classList.add(FONT_SIZES[fontSizeIdx]);
+  const incBtn = document.getElementById('fontSizeIncBtn');
+  const decBtn = document.getElementById('fontSizeDecBtn');
+  if (incBtn) {
+    incBtn.disabled = fontSizeIdx >= FONT_SIZES.length - 1;
+    incBtn.setAttribute('aria-label', `Increase font size. Current: ${FONT_LABELS[fontSizeIdx]}.`);
+  }
+  if (decBtn) {
+    decBtn.disabled = fontSizeIdx <= 0;
+    decBtn.setAttribute('aria-label', `Decrease font size. Current: ${FONT_LABELS[fontSizeIdx]}.`);
+  }
+  const lbl = document.getElementById('dmFontLabel');
+  if (lbl) lbl.textContent = FONT_LABELS[fontSizeIdx];
+  if (save) localStorage.setItem('gp-fs', String(fontSizeIdx));
+  srAnnounce(`Font size: ${FONT_LABELS[fontSizeIdx]}`);
+}
+
+function increaseFontSize() {
+  if (fontSizeIdx < FONT_SIZES.length - 1) { fontSizeIdx++; _applyFontSize(); }
+}
+
+function decreaseFontSize() {
+  if (fontSizeIdx > 0) { fontSizeIdx--; _applyFontSize(); }
+}
+
+function loadA11yPrefs() {
+  if (localStorage.getItem('gp-hc') === '1') toggleHighContrast(true, false);
+  const fs = parseInt(localStorage.getItem('gp-fs') || '0', 10);
+  fontSizeIdx = Math.min(Math.max(fs, 0), FONT_SIZES.length - 1);
+  _applyFontSize(false);
+  if (localStorage.getItem('gp-rm') === '1') toggleReduceMotion(true, false);
+  if (localStorage.getItem('gp-sm') === '1') toggleSimpleMode(true, false);
+  // Neurodiversity prefs
+  const rs = parseInt(localStorage.getItem('gp-rs') || '0', 10);
+  if (rs >= 0 && rs < RESPONSE_STYLES.length) { responseStyleIdx = rs; applyResponseStyle(false); }
+  if (localStorage.getItem('gp-focus') === '1') toggleFocusMode(true);
+  if (localStorage.getItem('gp-zen')   === '1') toggleZenMode(true);
+  if (localStorage.getItem('gp-guide') === '1') toggleGuide(true);
+}
+
+function toggleHighContrast(on, save = true) {
+  document.body.classList.toggle('high-contrast', on);
+  const btn = document.getElementById('highContrastBtn');
+  btn.setAttribute('aria-pressed', String(on));
+  btn.setAttribute('aria-label', `High contrast mode: ${on ? 'on' : 'off'}. Click to toggle.`);
+  if (save) localStorage.setItem('gp-hc', on ? '1' : '0');
+}
+
+
+function toggleReduceMotion(on, save = true) {
+  document.body.classList.toggle('reduce-motion', on);
+  const btn = document.getElementById('reduceMotionBtn');
+  btn.setAttribute('aria-pressed', String(on));
+  btn.setAttribute('aria-label', `Reduce motion: ${on ? 'on' : 'off'}. Click to toggle.`);
+  if (save) localStorage.setItem('gp-rm', on ? '1' : '0');
+}
+
+function toggleSimpleMode(on, save = true) {
+  document.body.classList.toggle('simple-mode', on);
+  const btn = document.getElementById('simpleModeBtn');
+  btn.setAttribute('aria-pressed', String(on));
+  btn.setAttribute('aria-label', `Simple mode: ${on ? 'on' : 'off'}. Click to toggle.`);
+  if (save) localStorage.setItem('gp-sm', on ? '1' : '0');
+}
+
+// ── Neurodiversity / ADHD Mode Toggles ───────────────────────────────────────
+
+function toggleFocusMode(on) {
+  focusMode = (on !== undefined) ? on : !focusMode;
+  document.body.classList.toggle('focus-mode', focusMode);
+  if (!focusMode) { focusQueue = []; focusNextWrap?.remove(); focusNextWrap = null; }
+  if (on === undefined) localStorage.setItem('gp-focus', focusMode ? '1' : '0');
+  srAnnounce(
+    focusMode
+      ? 'Focus mode enabled. Sidebars hidden. Responses shown one at a time — press Enter or the NEXT button to advance.'
+      : 'Focus mode disabled. Full layout restored.',
+    'polite'
+  );
+}
+
+function toggleZenMode(on) {
+  zenMode = (on !== undefined) ? on : !zenMode;
+  document.body.classList.toggle('zen-mode', zenMode);
+  if (on === undefined) localStorage.setItem('gp-zen', zenMode ? '1' : '0');
+  srAnnounce(
+    zenMode ? 'Zen mode enabled. Minimal distraction-free interface.' : 'Zen mode disabled. Full interface restored.',
+    'polite'
+  );
+}
+
+function toggleGuide(on) {
+  guideMode = (on !== undefined) ? on : !guideMode;
+  document.body.classList.toggle('guide-mode', guideMode);
+  if (on === undefined) localStorage.setItem('gp-guide', guideMode ? '1' : '0');
+  srAnnounce(
+    guideMode ? 'Reading guide enabled. A horizontal line now follows your cursor.' : 'Reading guide disabled.',
+    'polite'
+  );
+}
+
+function applyResponseStyle(save = true) {
+  responseStyle = RESPONSE_STYLES[responseStyleIdx];
+  const btn     = document.getElementById('responseLengthBtn');
+  btn.textContent = RESPONSE_CHARS[responseStyleIdx];
+  btn.className = `a11y-btn${responseStyle !== 'normal' ? ` active-${responseStyle}` : ''}`;
+  btn.setAttribute('aria-label', `Response length: ${RESPONSE_LABELS[responseStyleIdx]}. Click to cycle.`);
+  if (save) localStorage.setItem('gp-rs', String(responseStyleIdx));
+  srAnnounce(`Response length set to: ${RESPONSE_LABELS[responseStyleIdx]}`, 'polite');
+}
+
+function cycleResponseStyle() {
+  responseStyleIdx = (responseStyleIdx + 1) % RESPONSE_STYLES.length;
+  applyResponseStyle();
+}
+
+function setResponseStyle(style) {
+  const idx = RESPONSE_STYLES.indexOf(style);
+  if (idx < 0) return;
+  responseStyleIdx = idx;
+  applyResponseStyle();
+}
+
+// ── Focus-Mode Queue ──────────────────────────────────────────────────────────
+
+function startFocusQueue(items) {
+  focusQueue = [...items];
+  showNextFocusItem();
+}
+
+function showNextFocusItem() {
+  if (!focusQueue.length) {
+    focusNextWrap?.remove();
+    focusNextWrap = null;
+    scrollToBottom();
+    return;
+  }
+  focusNextWrap?.remove();
+  const item = focusQueue.shift();
+  output.appendChild(item);
+  scrollToBottom();
+
+  if (focusQueue.length > 0) {
+    if (!focusNextWrap) {
+      focusNextWrap = document.createElement('div');
+      focusNextWrap.className = 'focus-next-wrap';
+      const btn = document.createElement('button');
+      btn.className = 'focus-next-btn';
+      btn.id        = 'focusNextBtn';
+      btn.setAttribute('aria-label', 'Show next response');
+      btn.addEventListener('click', showNextFocusItem);
+      focusNextWrap.appendChild(btn);
+    }
+    const btn = focusNextWrap.querySelector('button');
+    btn.innerHTML = `↓ NEXT <span class="focus-next-count">(${focusQueue.length} more)</span>`;
+    output.appendChild(focusNextWrap);
+    scrollToBottom();
+  } else {
+    focusNextWrap = null;
+  }
+}
+
+// ── Prompt Hint (after every response) ───────────────────────────────────────
+
+function makePromptHint() {
+  const div = document.createElement('div');
+  div.className = 'prompt-hint';
+  div.setAttribute('role', 'status');
+  div.innerHTML = 'What would you like to do? Type <span class="prompt-hint-cmd">/help</span> for available commands.';
+  return div;
+}
+
+// ── Vex Content Pre-Warning ───────────────────────────────────────────────────
+
+function showVexPreWarning(encounter) {
+  pendingVexEncounter = encounter;
+
+  const div = document.createElement('div');
+  div.className = 'vex-prewarn';
+  div.setAttribute('role', 'alertdialog');
+  div.setAttribute('aria-labelledby', 'vexPreWarnTitle');
+  div.setAttribute('aria-describedby', 'vexPreWarnDesc');
+  div.innerHTML = `
+    <div class="vex-prewarn-header">
+      <span class="vex-prewarn-icon" aria-hidden="true">⚠</span>
+      <span id="vexPreWarnTitle">CONTENT NOTICE — A NEW CHARACTER</span>
+    </div>
+    <div class="vex-prewarn-text" id="vexPreWarnDesc">
+      A new character is about to appear who may create unexpected story tension.
+      Take a moment before continuing, or skip this encounter entirely.
+    </div>
+    <div class="vex-prewarn-actions">
+      <button class="vex-prewarn-continue-btn" id="vexPreWarnContinue"
+              aria-label="Continue to the Vex encounter">↓ CONTINUE</button>
+      <button class="vex-prewarn-skip-btn" id="vexPreWarnSkip"
+              aria-label="Skip this encounter — auto-reject Vex">SKIP</button>
+      <span class="vex-prewarn-skip-hint">or type /skip</span>
+    </div>`;
+
+  output.appendChild(div);
+  vexPreWarnEl = div;
+  scrollToBottom();
+
+  div.querySelector('#vexPreWarnContinue').addEventListener('click', continueFromVexPreWarning);
+  div.querySelector('#vexPreWarnSkip').addEventListener('click', skipVexEncounter);
+
+  srAnnounce(
+    'Content notice: a new character is about to appear who may create unexpected story tension. Press Enter or click Continue to proceed, or type /skip to bypass.',
+    'assertive'
+  );
+  addLog('agent', 'Vex', 'Content notice displayed — waiting for player decision');
+}
+
+function continueFromVexPreWarning() {
+  if (!pendingVexEncounter) return;
+  const encounter     = pendingVexEncounter;
+  pendingVexEncounter = null;
+  vexPreWarnEl?.remove();
+  vexPreWarnEl = null;
+  showVexModal(encounter);
+}
+
+async function skipVexEncounter() {
+  if (!pendingVexEncounter) return;
+  pendingVexEncounter = null;
+  vexPreWarnEl?.remove();
+  vexPreWarnEl = null;
+
+  addLog('agent', 'Vex', 'Encounter skipped by player');
+  srAnnounce('Vex encounter skipped. The crew continues without interruption.', 'polite');
+
+  try {
+    const resp   = await fetch('/api/vex_choice', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ choice: 'B' }),
+    });
+    const result = await resp.json();
+
+    const note = document.createElement('div');
+    note.className = 'system-message success';
+    note.setAttribute('role', 'status');
+    note.textContent = 'Vex encounter bypassed — the crew continues on their own terms.';
+    output.appendChild(note);
+    output.appendChild(makePromptHint());
+    output.appendChild(Object.assign(document.createElement('div'), { className: 'turn-divider' }));
+    scrollToBottom();
+
+    if (result.state) {
+      const s = result.state;
+      phaseBadge.textContent  = s.phase.toUpperCase();
+      phaseBadge.setAttribute('aria-label', `Current heist phase: ${s.phase}`);
+      setAlertBadge(s.alert_state);
+      turnCounter.textContent = `TURN ${s.turn_count}`;
+      updateSidebar(s);
+      currentPhase = s.phase;
+    }
+  } catch (err) {
+    addLog('system', null, `Skip error: ${err.message}`);
+  }
+}
+
+// ── Content Advisory ─────────────────────────────────────────────────────────
+
+function dismissContentAdvisory() {
+  document.getElementById('contentAdvisoryOverlay').style.display = 'none';
+  advisoryShown = false;
+  playerInput.focus();
+  srAnnounce('Content advisory dismissed. Mission ready. Type an action or /help for commands.', 'polite');
+}
+
+// ── Crew Morale Indicator ─────────────────────────────────────────────────────
+
+const MORALE_LEVELS = {
+  cold:     { label: 'MORALE: HIGH',     cls: '' },
+  warm:     { label: 'MORALE: OK',       cls: 'ok' },
+  hot:      { label: 'MORALE: LOW',      cls: 'low' },
+  scorched: { label: 'MORALE: CRITICAL', cls: 'critical' },
+};
+
+function updateMoraleIndicator(alert) {
+  const m   = MORALE_LEVELS[alert] || MORALE_LEVELS.cold;
+  const el  = document.getElementById('moraleBadge');
+  el.textContent = m.label;
+  el.className   = `morale-badge ${m.cls}`;
+  el.setAttribute('aria-label', `Crew morale: ${m.label.replace('MORALE: ', '')}`);
+}
+
+// ── Stress / Breath Message ───────────────────────────────────────────────────
+
+const ALERT_RANK = { cold: 0, warm: 1, hot: 2, scorched: 3 };
+
+function showBreathMessage() {
+  const div = document.createElement('div');
+  div.className = 'breath-message';
+  div.setAttribute('role', 'status');
+  div.innerHTML =
+    '<strong>The mission is getting intense.</strong> ' +
+    'Your crew is under pressure — that\'s part of the job, and it\'s okay to step back.<br>' +
+    'Type <span class="breath-cmd">/pause</span> anytime to take a break. Your progress is always saved.';
+  output.appendChild(div);
+  scrollToBottom();
+  srAnnounce(
+    'The mission is getting intense. Type /pause to take a break — your progress is always saved.',
+    'polite'
+  );
+}
+
+// ── Pause / Resume ────────────────────────────────────────────────────────────
+
+function activatePause() {
+  isPaused = true;
+  document.getElementById('pauseOverlay').style.display = 'flex';
+  // Keep input accessible for /resume — don't disable it
+  srAnnounce(
+    'Mission paused. All systems holding. Your crew is waiting — no rush. Your progress is saved. Type /resume or click Resume Mission when you are ready.',
+    'polite'
+  );
+  addLog('system', null, 'Mission paused');
+}
+
+function resumeFromPause() {
+  if (!isPaused) return;
+  isPaused = false;
+  document.getElementById('pauseOverlay').style.display = 'none';
+  const div = document.createElement('div');
+  div.className = 'system-message success';
+  div.setAttribute('role', 'status');
+  div.innerHTML = '<strong>Welcome back, runner.</strong> Your crew held position. The mission continues.';
+  output.appendChild(div);
+  output.appendChild(makePromptHint());
+  scrollToBottom();
+  playerInput.focus();
+  srAnnounce('Mission resumed. Welcome back. Your crew is ready.', 'polite');
+  addLog('system', null, 'Mission resumed');
+}
+
+// ── Quit / Return ─────────────────────────────────────────────────────────────
+
+function activateQuit() {
+  document.getElementById('quitOverlay').style.display = 'flex';
+  srAnnounce(
+    'Progress saved. Well played, runner. Your crew will be here when you return. You can safely close this tab.',
+    'polite'
+  );
+  addLog('system', null, 'Player exited safely');
+}
+
+function returnFromQuit() {
+  document.getElementById('quitOverlay').style.display = 'none';
+  const div = document.createElement('div');
+  div.className = 'system-message success';
+  div.setAttribute('role', 'status');
+  div.textContent = 'Good to have you back. The mission continues.';
+  output.appendChild(div);
+  output.appendChild(makePromptHint());
+  scrollToBottom();
+  playerInput.focus();
+  srAnnounce('Good to have you back. The mission continues.', 'polite');
+}
+
+// ── Keyboard Shortcuts Panel ──────────────────────────────────────────────────
+let kbLastFocus = null;
+
+function openKbHelp() {
+  kbLastFocus = document.activeElement;
+  kbOverlay.removeAttribute('hidden');
+  document.getElementById('closeKbHelp').focus();
+  srAnnounce('Keyboard shortcuts panel opened. Press Escape or click Close to dismiss.');
+}
+
+function closeKbHelp() {
+  kbOverlay.setAttribute('hidden', '');
+  if (kbLastFocus) kbLastFocus.focus();
+}
+
+// Focus trap inside KB help panel
+kbOverlay.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeKbHelp(); return; }
+  if (e.key !== 'Tab') return;
+  const focusable = [...kbOverlay.querySelectorAll('button, a, [tabindex]:not([tabindex="-1"])')];
+  const first = focusable[0], last = focusable[focusable.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+});
+
+// ── Confirmation suggestion row (extraction confirmation) ─────────────────────
+function makeConfirmationSuggestions(suggestions) {
+  const wrap = document.createElement('div');
+  wrap.className = 'suggestion-row';
+  wrap.setAttribute('role', 'group');
+  wrap.setAttribute('aria-label', 'Extraction confirmation choices');
+
+  suggestions.forEach((text, i) => {
+    const btn = document.createElement('button');
+    const isConfirm = i === 0;
+    btn.className = `suggestion-btn${isConfirm ? ' confirm-action-btn' : ''}`;
+    btn.textContent = isConfirm ? 'CONFIRM EXTRACTION' : text;
+    btn.setAttribute('aria-label',
+      isConfirm ? 'Confirm extraction — irreversible action' : `Fill input: ${text}`);
+
+    if (isConfirm) {
+      // Auto-submit the confirm command
+      btn.addEventListener('click', () => {
+        playerInput.value = 'confirm';
+        sendAction();
+      });
+    } else {
+      btn.addEventListener('click', () => {
+        playerInput.value = text;
+        playerInput.focus();
+        playerInput.setSelectionRange(text.length, text.length);
+        srAnnounce(`Input filled with: ${text}`, 'polite');
+      });
+    }
+    wrap.appendChild(btn);
+  });
+  return wrap;
+}
+
+// ── Suggested actions panel ───────────────────────────────────────────────────
+function makeSuggestions(suggestions) {
+  if (!suggestions || !suggestions.length) return null;
+  const wrap = document.createElement('div');
+  wrap.className = 'suggestion-row';
+  wrap.setAttribute('role', 'group');
+  wrap.setAttribute('aria-label', 'Suggested actions — click to fill input');
+  suggestions.forEach(text => {
+    const btn = document.createElement('button');
+    btn.className = 'suggestion-btn';
+    btn.textContent = text;
+    btn.setAttribute('aria-label', `Fill input: ${text}`);
+    btn.addEventListener('click', () => {
+      playerInput.value = text;
+      playerInput.focus();
+      playerInput.setSelectionRange(text.length, text.length);
+      srAnnounce(`Input filled with: ${text}`, 'polite');
+    });
+    wrap.appendChild(btn);
+  });
+  return wrap;
+}
+
+// ── Phase advance hint ────────────────────────────────────────────────────────
+function makePhaseHint(state, turnsInPhase) {
+  if (!state || turnsInPhase < 2) return null;
+  const phases = ['recon', 'infiltration', 'execution', 'extraction'];
+  const idx = phases.indexOf(state.phase);
+  if (idx < 0 || idx >= phases.length - 1) return null;
+  const nextPhase = phases[idx + 1];
+  const div = document.createElement('div');
+  div.className = 'phase-hint';
+  div.innerHTML = `Ready to advance? Try: <span class="phase-hint-cmd">move to ${nextPhase} phase</span>`;
+  return div;
+}
+
+// ── /help local handler ───────────────────────────────────────────────────────
+function showHelpLocal() {
+  const div = document.createElement('div');
+  div.className = 'gm-narrative';
+  div.setAttribute('role', 'region');
+  div.setAttribute('aria-label', 'Available commands');
+  div.innerHTML =
+`<div class="gm-header" aria-hidden="true"><span class="gm-label">[GHOST]</span><span class="gm-sep"></span></div>
+<div class="gm-body">Available commands, runner:
+
+<strong>PHASE CONTROL:</strong>
+  move to infiltration phase
+  move to execution phase
+  move to extraction phase
+
+<strong>CREW COMMANDS:</strong>
+  [agent name], [instruction]
+  Examples:
+  "Cipher, hack the security terminal"
+  "Shadow, scout ahead"
+  "Wraith, neutralize the guard"
+  "Patch, assess our options"
+
+<strong>GAME COMMANDS:</strong>
+  /brief    — shorter responses (3 sentences max)
+  /normal   — default response length
+  /detailed — full rich responses
+  /focus    — hide sidebars, one card at a time
+  /zen      — minimal distraction-free UI
+  /guide    — reading guide line
+  /pause    — pause and save. Take your time.
+  /resume   — resume after a pause
+  /quit     — save and exit
+  /help     — show this reference
+  /status   — phase, alert, crew health
+  /crew     — detailed crew status
+
+<strong>FREE FORM:</strong>
+  Type any action naturally.
+  Ghost Protocol understands context.
+  Examples:
+  "scan the entrance"
+  "what does Cipher think about the cameras?"
+  "check if there's another way in"</div>`;
+  output.appendChild(div);
+  scrollToBottom();
+  srAnnounce('Help displayed. Available commands: /status, /crew, /objectives, /history, /advance. Press Ctrl+/ for keyboard shortcuts.');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+async function init() {
+  loadA11yPrefs();
+  renderPhaseProgress('recon');
+  updateMoraleIndicator('cold');
+
+  // Focus the advisory Begin button so keyboard users can dismiss immediately
+  requestAnimationFrame(() => {
+    const caBtn = document.getElementById('caBeginBtn');
+    if (caBtn) caBtn.focus();
+  });
+
+  try {
+    const resp  = await fetch('/api/state');
+    const state = await resp.json();
+    currentPhase = state.phase || 'recon';
+    updateSidebar(state);
+
+    // Show starter suggestions on page load so players know what to type
+    const _initSugg = {
+      recon:         ['Cipher, analyze their security systems', 'Shadow, find us a way in', 'Wraith, what are the guard rotations?', 'scan the Nexus Corp Tower entrance'],
+      infiltration:  ['Shadow, scout the service entrance', 'Cipher, loop the camera feeds', 'Wraith, neutralize the guard', 'move to execution phase'],
+      execution:     ['Cipher, connect to the GenVault array', 'Wraith, hold the perimeter', 'Patch, how much time do we have?', 'move to extraction phase'],
+      extraction:    ['Wraith, clear the exit route', 'Shadow, cover our tracks', 'Cipher, wipe the access logs', 'Patch, status check on the crew'],
+    };
+    const initSuggEl = makeSuggestions(_initSugg[currentPhase] || _initSugg.recon);
+    if (initSuggEl) output.appendChild(initSuggEl);
+
+    phaseBadge.textContent   = currentPhase.toUpperCase();
+    phaseBadge.setAttribute('aria-label', `Current heist phase: ${currentPhase}`);
+    const initialAlert = state.alert_state || 'cold';
+    setAlertBadge(initialAlert);
+    _prevAlertLevel = initialAlert;
+    turnCounter.textContent  = `TURN ${state.turn_count || 0}`;
+    if (state.mission) missionName.textContent = state.mission;
+    renderPhaseProgress(currentPhase);
+    addLog('system', null, `Session loaded — ${state.mission || 'Operation GENESIS'}`);
+  } catch (e) {
+    console.error('Init error:', e);
+    addLog('system', null, 'State load failed — running in local mode');
+  }
+}
+
+// ── Sidebar ───────────────────────────────────────────────────────────────────
+function updateSidebar(state) {
+  const flags = state.flags || {};
+  if (state.crew_detail) renderCrew(state.crew_detail, flags);
+  if (state.objectives)  renderObjectives(state.objectives, state.phase || currentPhase);
+  if (state.flags)       renderFlags(state.flags);
+  if (state.mission)     missionName.textContent = state.mission;
+}
+
+function renderCrew(crewDetail, flags = {}) {
+  const ORDER = ['Wraith', 'Cipher', 'Shadow', 'Patch'];
+  const vexAppeared = flags.vex_appeared === true || String(flags.vex_appeared).toLowerCase() === 'true';
+
+  let html = ORDER.map(name => {
+    const info  = crewDetail[name] || { health_state: 'operational' };
+    const h     = info.health_state || 'operational';
+    const pct   = HEALTH_PCT[h] ?? 100;
+    const cls   = (AGENT_COLORS[name] || '').toLowerCase();
+    const icon  = AGENT_ICONS[name] || '·';
+    const last  = crewLastAction[name]
+      ? `<div class="crew-last">${escHtml(crewLastAction[name].slice(0,32))}…</div>` : '';
+    const noteText = (info.notes && info.notes !== 'Nominal') ? info.notes.slice(0, 20) : '';
+    const statusLabel = `${escHtml(name)}: ${h}${noteText ? ` — ${escHtml(noteText)}` : ''}, health ${pct}%`;
+    const statusLine  = h !== 'operational'
+      ? `<span class="crew-status ${h}">${h}${noteText ? `<span class="crew-notes"> · ${escHtml(noteText)}</span>` : ''}</span>` : '';
+    return `
+      <div class="crew-member" role="listitem">
+        <div class="crew-top">
+          <span class="crew-dot ${h}" style="background:var(--${cls})" aria-hidden="true"></span>
+          <span class="agent-card-icon agent-${cls}" aria-hidden="true">${icon}</span>
+          <div class="crew-info">
+            <span class="crew-name agent-${cls}">${escHtml(name)}</span>
+            ${statusLine}
+          </div>
+        </div>
+        <div class="health-bar-wrap">
+          <div class="health-bar"
+               role="meter" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"
+               aria-label="${statusLabel}">
+            <div class="health-fill ${h}" style="width:${pct}%;background:var(--${cls})" aria-hidden="true"></div>
+          </div>
+          <span class="health-pct" aria-hidden="true">${pct}%</span>
+        </div>
+        ${last}
+      </div>`;
+  }).join('');
+
+  // ── Vex — wildcard / rival operator ─────────────────────────────────────
+  html += '<div class="crew-vex-separator" aria-hidden="true"></div>';
+  if (vexAppeared) {
+    const info = crewDetail['Vex'] || { health_state: 'operational' };
+    const h    = info.health_state || 'operational';
+    const pct  = HEALTH_PCT[h] ?? 100;
+    const noteText = (info.notes && info.notes !== 'Nominal') ? info.notes.slice(0, 20) : '';
+    const statusLabel = `Vex: ${h}${noteText ? ` — ${escHtml(noteText)}` : ''}, health ${pct}%`;
+    const statusLine  = h !== 'operational'
+      ? `<span class="crew-status ${h}">${h}${noteText ? `<span class="crew-notes"> · ${escHtml(noteText)}</span>` : ''}</span>` : '';
+    html += `
+      <div class="crew-member crew-vex" role="listitem">
+        <div class="crew-top">
+          <span class="crew-dot ${h}" style="background:var(--vex)" aria-hidden="true"></span>
+          <span class="agent-card-icon agent-vex" aria-hidden="true">⚡</span>
+          <div class="crew-info">
+            <span class="crew-name agent-vex">Vex</span>
+            ${statusLine}
+          </div>
+        </div>
+        <div class="health-bar-wrap">
+          <div class="health-bar" role="meter"
+               aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"
+               aria-label="${statusLabel}">
+            <div class="health-fill ${h}" style="width:${pct}%;background:var(--vex)" aria-hidden="true"></div>
+          </div>
+          <span class="health-pct" aria-hidden="true">${pct}%</span>
+        </div>
+      </div>`;
+  } else {
+    html += `
+      <div class="crew-member crew-vex" role="listitem" aria-label="Vex: unaffiliated rival operator, status unknown">
+        <div class="crew-top">
+          <span class="crew-dot" style="background:var(--vex);opacity:0.5" aria-hidden="true"></span>
+          <span class="agent-card-icon agent-vex" aria-hidden="true">⚡</span>
+          <div class="crew-info">
+            <span class="crew-name agent-vex">Vex</span>
+            <span class="crew-status unaffiliated">UNAFFILIATED</span>
+          </div>
+        </div>
+        <div class="health-bar-wrap">
+          <div class="health-bar" role="meter"
+               aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+               aria-label="Vex: status unknown">
+            <div class="health-fill vex-unknown" aria-hidden="true"></div>
+          </div>
+          <span class="health-pct vex-unknown" aria-hidden="true">???</span>
+        </div>
+      </div>`;
+  }
+
+  crewStatusEl.innerHTML = html;
+}
+
+function renderObjectives(objectives, phase) {
+  const phaseObjs = objectives.filter(o => o.phase === phase);
+  if (!phaseObjs.length) {
+    objectivesEl.innerHTML = '<div class="empty-msg">No objectives this phase.</div>';
+    return;
+  }
+  objectivesEl.innerHTML = `<ul role="list" style="list-style:none;padding:0;margin:0">` +
+    phaseObjs.map(obj => {
+      const icon   = obj.status === 'complete' ? '✓' : obj.status === 'failed' ? '✗' : '·';
+      const status = obj.status === 'complete' ? 'Complete' : obj.status === 'failed' ? 'Failed' : 'Pending';
+      return `<li class="objective-item ${obj.status}" role="listitem"
+                  aria-label="${escHtml(obj.description)} — ${status}">
+        <span class="obj-icon" aria-hidden="true">${icon}</span>
+        <span>${escHtml(obj.description)}</span>
+      </li>`;
+    }).join('') + `</ul>`;
+}
+
+const FLAG_ABBREV = {
+  vex_appeared:       'vex appeared',
+  vex_deal_taken:     'vex deal taken',
+  vex_trusted:        'vex trusted',
+  argus3_rebooting:   'argus3 reboot',
+  genvault_connected: 'genvault conn.',
+  data_extracted:     'data extracted',
+  marcus_okafor_seen: 'm.okafor seen',
+  crew_compromised:   'crew compromised',
+};
+
+function renderFlags(flags) {
+  const BOOL_KEYS = [
+    'vex_appeared', 'vex_deal_taken', 'vex_trusted',
+    'argus3_rebooting', 'genvault_connected',
+    'data_extracted', 'marcus_okafor_seen', 'crew_compromised',
+  ];
+  const VALUE_KEYS = [
+    { key: 'crew_loyalty', label: 'crew loyalty' },
+    { key: 'mission_speed', label: 'mission speed' },
+  ];
+
+  let html = BOOL_KEYS.map(k => {
+    const active  = flags[k] === true || flags[k] === 'true';
+    const fullName = k.replace(/_/g, ' ');
+    const abbrev  = FLAG_ABBREV[k] || fullName;
+    return `<div class="flag-item" role="status" aria-label="${escHtml(fullName)}: ${active ? 'true' : 'false'}">
+      <span class="flag-name" title="${escHtml(fullName)}">${escHtml(abbrev)}</span>
+      <span class="flag-value ${active ? 'active' : 'inactive'}" aria-hidden="true">${active ? 'TRUE' : 'false'}</span>
+    </div>`;
+  }).join('');
+
+  html += VALUE_KEYS.map(({ key, label }) => {
+    const val = flags[key];
+    if (val == null) return '';
+    const num    = parseInt(val, 10);
+    const isNum  = !isNaN(num);
+    const isGood = (isNum && num > 100) || val === 'fast';
+    const isBad  = (isNum && num < 100) || val === 'slow';
+    const cls    = isGood ? 'flag-value-good' : isBad ? 'flag-value-warn' : 'flag-value inactive';
+    const tone   = isGood ? 'positive' : isBad ? 'warning' : 'neutral';
+    return `<div class="flag-item" role="status" aria-label="${escHtml(label)}: ${escHtml(String(val))} (${tone})">
+      <span class="flag-name" title="${escHtml(label)}">${escHtml(label)}</span>
+      <span class="flag-value ${cls}">${escHtml(String(val))}</span>
+    </div>`;
+  }).join('');
+
+  worldFlagsEl.innerHTML = html;
+}
+
+function setAlertBadge(alert) {
+  alertBadge.className = `alert-badge ${alert}`;
+  alertBadge.textContent = `ALERT: ${alert.toUpperCase()}`;
+  alertBadge.setAttribute('aria-label', `Alert level: ${alert}`);
+  srAnnounce(`Alert level: ${alert}`, 'assertive');
+
+  updateMoraleIndicator(alert);
+
+  // Show breath message only when escalating TO hot or scorched for the first time
+  const prevRank = ALERT_RANK[_prevAlertLevel] ?? 0;
+  const newRank  = ALERT_RANK[alert] ?? 0;
+  if (newRank >= 2 && newRank > prevRank) showBreathMessage();
+  _prevAlertLevel = alert;
+}
+
+// ── Reasoning Panel ───────────────────────────────────────────────────────────
+function renderPhaseProgress(phase) {
+  const idx = PHASES.indexOf(phase.toLowerCase());
+  document.getElementById('phaseProgress').innerHTML = PHASES.map((p, i) => {
+    const state = i < idx ? 'done' : i === idx ? 'current' : 'future';
+    const icon  = i < idx ? '✓' : i === idx ? '▶' : '○';
+    const ariaLabel = `${p} phase — ${state === 'done' ? 'complete' : state === 'current' ? 'in progress' : 'upcoming'}`;
+    const conn  = i < PHASES.length - 1
+      ? '<div class="ps-conn" aria-hidden="true"><div class="ps-conn-line"></div></div>' : '';
+    return `<div class="phase-step ${state}" role="listitem" aria-label="${ariaLabel}">
+      <span class="ps-icon" aria-hidden="true">${icon}</span>
+      <span class="ps-name">${p.toUpperCase()}</span>
+    </div>${conn}`;
+  }).join('');
+}
+
+function renderIQSection(query, summary, mode, relevant) {
+  const isFirst  = _iqFirstQuery;
+  if (_iqFirstQuery) _iqFirstQuery = false;
+
+  const iqData   = extractIQData(summary);
+  const hitCount = iqData.length;
+  // relevant===false means the KB had no game-lore match for this query
+  const isRelevant = relevant !== false;
+
+  const queryClass = isFirst ? ' iq-typewriter' : '';
+  const sourcesClass = (isFirst && hitCount) ? ' iq-cite-fade' : '';
+
+  const hitLabel = isRelevant ? `${hitCount} file${hitCount !== 1 ? 's' : ''} hit` : 'no match';
+  let html = `<div class="rp-iq-meta">
+    <span class="iq-mode-azure" aria-label="Knowledge source: Azure AI Search">AZURE SEARCH</span>
+    <span class="iq-hits"> · ${hitLabel}</span>
+  </div>`;
+  html += `<div class="rp-iq-query${queryClass}" aria-label="Query: ${escHtml(query.slice(0, 60))}">"${escHtml(query.slice(0, 60))}"</div>`;
+
+  if (!isRelevant) {
+    html += '<div class="rp-iq-no-results" aria-label="No relevant knowledge base results">NO RELEVANT RESULTS</div>';
+  } else if (hitCount) {
+    html += `<div class="rp-iq-sources${sourcesClass}">`;
+    iqData.forEach(d => {
+      html += `<div class="rp-iq-item">
+        <span class="iq-file" aria-label="Source document: ${escHtml(d.file)}">[IQ: ${escHtml(d.file)}]</span>
+        ${d.snippet ? `<div class="rp-iq-snippet">"${escHtml(d.snippet)}${d.snippet.length >= 90 ? '…' : ''}"</div>` : ''}
+      </div>`;
+    });
+    html += '</div>';
+  } else {
+    html += '<div class="rp-idle">No sources matched</div>';
+  }
+
+  const rpIQ = document.getElementById('rpIQ');
+  rpIQ.innerHTML = html;
+
+  if (isFirst) {
+    const section = rpIQ.closest('.rp-section');
+    if (section) {
+      section.classList.add('iq-flash');
+      setTimeout(() => section.classList.remove('iq-flash'), 800);
+    }
+  }
+}
+
+function renderAgentsSection(agents) {
+  const el = document.getElementById('rpAgents');
+  if (!agents?.length) {
+    el.innerHTML = '<div class="rp-idle">No agents this turn</div>';
+    return;
+  }
+  el.innerHTML = agents.map(a => {
+    const cap  = a.charAt(0).toUpperCase() + a.slice(1).toLowerCase();
+    const cls  = (AGENT_COLORS[cap] || a).toLowerCase();
+    const role = AGENT_ROLES[cap] || '';
+    const icon = AGENT_ICONS[cap] || '·';
+    return `<div class="rp-agent" role="listitem" aria-label="${escHtml(cap)}, ${escHtml(role)}">
+      <span class="agent-card-icon agent-${cls}" aria-hidden="true">${icon}</span>
+      <span class="rp-agent-name agent-${cls}">[${escHtml(a.toUpperCase())}]</span>
+      <span class="rp-agent-role">${escHtml(role)}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderDiceSection(diceRoll) {
+  const el = document.getElementById('rpDice');
+  if (!diceRoll) { el.innerHTML = '<div class="rp-idle">No roll this turn</div>'; return; }
+  const d    = diceRoll;
+  const info = DICE_LABELS.find(l => d.total >= l.min) || DICE_LABELS[DICE_LABELS.length - 1];
+  const sign = d.modifier > 0 ? `+${d.modifier}` : d.modifier < 0 ? String(d.modifier) : '';
+  const dcStr = info.dc ? `vs DC ${info.dc} → ` : '→ ';
+  el.innerHTML = `
+    <div class="rp-dice-line">
+      🎲 d${d.sides}${sign ? ` ${sign}` : ''} =
+      <span class="rp-dice-val ${info.cls}" aria-label="Roll total: ${d.total}">${d.total}</span>
+    </div>
+    <div class="rp-dice-result ${info.cls}">${dcStr}<strong>${info.label}</strong></div>`;
+}
+
+function renderStatsSection(elapsedMs, totalTokens) {
+  const el = document.getElementById('rpStats');
+  el.innerHTML = `
+    <div class="rp-stat-row">
+      <span class="rp-stat-label">RESPONSE TIME</span>
+      <span class="rp-stat-val">${(elapsedMs / 1000).toFixed(2)}s</span>
+    </div>
+    <div class="rp-stat-row">
+      <span class="rp-stat-label">TOKENS USED</span>
+      <span class="rp-stat-val">${totalTokens != null ? totalTokens.toLocaleString() : '—'}</span>
+    </div>`;
+}
+
+// ── Mission Log ───────────────────────────────────────────────────────────────
+function addLog(type, label, text) {
+  logEntryCount++;
+  logCountEl.textContent = `${logEntryCount} event${logEntryCount === 1 ? '' : 's'}`;
+
+  const t   = new Date().toTimeString().slice(0, 8);
+  const div = document.createElement('div');
+  div.className = `log-entry log-${type}`;
+
+  let labelHtml = '';
+  if (label) {
+    const lc  = (AGENT_COLORS[label] || '').toLowerCase();
+    const cls = type === 'iq' ? 'iq' : lc ? `agent-${lc}` : '';
+    labelHtml = `<span class="log-label ${cls}" aria-hidden="true">[${label.toUpperCase()}]</span>`;
+  }
+
+  div.innerHTML = `<span class="log-time" aria-hidden="true">${t}</span>${labelHtml}<span class="log-text">${escHtml(text)}</span>`;
+  missionLog.appendChild(div);
+  requestAnimationFrame(() => { missionLog.scrollTop = missionLog.scrollHeight; });
+}
+
+// ── Message Rendering ─────────────────────────────────────────────────────────
+function appendPlayerLine(text) {
+  const div = document.createElement('div');
+  div.className = 'turn';
+  div.innerHTML = `<div class="player-line" aria-label="You said: ${escHtml(text)}">
+    <span class="prompt" aria-hidden="true">&gt;</span>
+    <span class="player-text">${escHtml(text)}</span>
+  </div>`;
+  output.appendChild(div);
+}
+
+function appendProcessing() {
+  const div = document.createElement('div');
+  div.className = 'processing';
+  div.setAttribute('role', 'status');
+  div.setAttribute('aria-label', 'Ghost is processing your action');
+  div.innerHTML = `<span>[ GHOST PROCESSING </span>
+    <span class="processing-dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span>
+    <span> ]</span>`;
+  output.appendChild(div);
+  scrollToBottom();
+  return div;
+}
+
+function renderResult(result, actionText, elapsedMs) {
+  output.querySelector('.processing')?.remove();
+
+  // ── Command result ──────────────────────────────────────────────────────────
+  if (result.command_result !== undefined) {
+    const div = document.createElement('div');
+    div.className = `system-message ${result.error ? 'error' : 'success'}`;
+    div.setAttribute('role', 'region');
+    div.setAttribute('aria-label', 'Command result');
+    div.innerHTML = result.command_result;
+    output.appendChild(div);
+    output.appendChild(makePromptHint());
+    scrollToBottom();
+    return;
+  }
+
+  // ── Error ───────────────────────────────────────────────────────────────────
+  if (result.error && !result.agent_responses) {
+    const div = document.createElement('div');
+    div.className = 'system-message error';
+    div.setAttribute('role', 'alert');
+    div.textContent = result.error;
+    output.appendChild(div);
+    output.appendChild(makePromptHint());
+    addLog('system', null, `Blocked: ${result.error.slice(0, 50)}`);
+    srAnnounce(`Error: ${result.error.slice(0, 80)}`, 'assertive');
+    scrollToBottom();
+    return;
+  }
+
+  // ── Phase advance banner ────────────────────────────────────────────────────
+  if (result.phase_advanced) {
+    const el = document.createElement('div');
+    el.className = 'phase-advance';
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'polite');
+    el.innerHTML = `⚡ PHASE ADVANCING → ${escHtml(result.phase_advanced.toUpperCase())}`;
+    output.appendChild(el);
+    addLog('phase', null, `Phase → ${result.phase_advanced.toUpperCase()}`);
+    srAnnounce(`Phase advancing to ${result.phase_advanced}`, 'assertive');
+  }
+
+  // ── Vex encounter — content pre-warning first ───────────────────────────────
+  if (result.vex_encounter) showVexPreWarning(result.vex_encounter);
+
+  // ── IQ citation strip (always show — it's metadata, not overwhelming) ────────
+  const iqData = extractIQData(result.knowledge_summary || '');
+  if (iqData.length && actionText) {
+    const el = document.createElement('div');
+    el.className = 'iq-citation';
+    el.setAttribute('role', 'note');
+    el.setAttribute('aria-label', `Knowledge base sources: ${iqData.map(d => d.file).join(', ')}`);
+    el.innerHTML = iqData.map(d =>
+      `<div class="iq-citation-line">` +
+      `<span class="iq-file-label" aria-hidden="true">[IQ: ${escHtml(d.file)}]</span> ` +
+      `<span class="iq-snippet">${escHtml(d.snippet)}${d.snippet && d.snippet.length >= 90 ? '…' : ''}</span>` +
+      `</div>`
+    ).join('');
+    output.appendChild(el);
+  }
+
+  // ── Agent cards — sort by fixed AGENT_ORDER for consistent layout ────────────
+  const agentResponses = (result.agent_responses || [])
+    .filter(r => r.success)
+    .sort((a, b) => {
+      const ai = AGENT_ORDER.indexOf(a.agent_name);
+      const bi = AGENT_ORDER.indexOf(b.agent_name);
+      return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+    });
+
+  const focusItems = []; // populated in focus mode, appended directly otherwise
+
+  if (agentResponses.length) {
+    agentResponses.forEach(r => {
+      const cls  = (AGENT_COLORS[r.agent_name] || '').toLowerCase();
+      const icon = AGENT_ICONS[r.agent_name] || '·';
+      const card = document.createElement('div');
+      card.className = `agent-card ${cls}`;
+      card.setAttribute('role', 'article');
+      card.setAttribute('aria-label', `${r.agent_name}, ${r.role}, says: ${r.response.slice(0, 100)}`);
+      card.innerHTML = `
+        <div class="agent-card-header" aria-hidden="true">
+          <span class="agent-card-icon agent-${cls}">${icon}</span>
+          <span class="agent-card-name">[${escHtml(r.agent_name.toUpperCase())}]</span>
+          <span class="agent-card-role">${escHtml(r.role)}</span>
+        </div>
+        <div class="agent-card-body">${renderAgentText(r.response)}</div>`;
+      crewLastAction[r.agent_name] = actionText || '';
+      addLog('agent', r.agent_name, `Responding — ${(actionText || '').slice(0, 38)}`);
+
+      if (focusMode) {
+        focusItems.push(card);
+      } else {
+        output.appendChild(card);
+      }
+    });
+
+    if (!focusMode) {
+      const names = agentResponses.map(r => r.agent_name).join(' and ');
+      srAnnounce(`${names} responding`, 'polite');
+    }
+  }
+
+  // ── Dice roll ────────────────────────────────────────────────────────────────
+  if (result.dice_roll) {
+    const d    = result.dice_roll;
+    const info = DICE_LABELS.find(l => d.total >= l.min) || DICE_LABELS[DICE_LABELS.length - 1];
+    const sign = d.modifier >= 0 ? '+' : '';
+    const el   = document.createElement('div');
+    el.className = 'dice-block';
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'assertive');
+    el.setAttribute('aria-label', `Dice roll: d${d.sides} equals ${d.total} — ${info.label}`);
+    el.innerHTML = `
+      <span class="dice-icon" aria-hidden="true">🎲</span>
+      <span class="dice-equation" aria-hidden="true">d${d.sides} ${sign}${d.modifier} &rarr; ${d.raw}${d.modifier ? ` ${sign}${d.modifier}` : ''}</span>
+      <span class="dice-total ${info.cls}" aria-hidden="true">${d.total}</span>
+      <span class="dice-label ${info.cls}" aria-hidden="true">${info.label}</span>`;
+    addLog('dice', null, `d${d.sides} = ${d.total} → ${info.label}`);
+    srAnnounce(`Dice roll: d${d.sides} equals ${d.total} — ${info.label}`, 'assertive');
+    if (focusMode) focusItems.push(el); else output.appendChild(el);
+  }
+
+  // ── Ghost narrative ───────────────────────────────────────────────────────────
+  if (result.narrative) {
+    const el = document.createElement('div');
+    el.className = 'gm-narrative';
+    el.setAttribute('role', 'article');
+    el.setAttribute('aria-label', `Ghost, Game Master, says: ${result.narrative.slice(0, 120)}`);
+    el.innerHTML = `
+      <div class="gm-header" aria-hidden="true">
+        <span class="gm-label">[GHOST]</span>
+        <span class="gm-sep"></span>
+      </div>
+      <div class="gm-body">${renderAgentText(result.narrative)}</div>`;
+    // Amber border when this is a confirmation prompt
+    if (result.confirmation_needed) {
+      el.classList.add('confirmation-prompt');
+      srAnnounce(
+        'Ghost is requesting confirmation before proceeding with irreversible data extraction. Type confirm to proceed or give different orders.',
+        'assertive'
+      );
+    } else {
+      addLog('agent', 'Ghost', 'Narrative synthesized');
+      srAnnounce(`Ghost says: ${result.narrative.slice(0, 100)}`, 'polite');
+    }
+    if (focusMode) focusItems.push(el); else output.appendChild(el);
+  }
+
+  // ── Token-noise warning (>100k session tokens) ───────────────────────────────
+  if (result.token_warning) {
+    const tw = document.createElement('div');
+    tw.className = 'phase-hint';   // reuse dim-grey style
+    tw.setAttribute('aria-live', 'polite');
+    tw.textContent = result.token_warning;
+    if (focusMode) focusItems.push(tw); else output.appendChild(tw);
+    addLog('system', null, result.token_warning);
+  }
+
+  // ── Suggested actions ─────────────────────────────────────────────────────────
+  // Confirmation prompt gets its own styled button row with auto-submit CONFIRM button
+  if (result.confirmation_needed && result.suggestions && result.suggestions.length) {
+    const confirmEl = makeConfirmationSuggestions(result.suggestions);
+    if (confirmEl) { if (focusMode) focusItems.push(confirmEl); else output.appendChild(confirmEl); }
+  } else if (!result.vex_encounter && result.suggestions && result.suggestions.length) {
+    const suggEl = makeSuggestions(result.suggestions);
+    if (suggEl) { if (focusMode) focusItems.push(suggEl); else output.appendChild(suggEl); }
+  }
+
+  // ── Phase advance hint ────────────────────────────────────────────────────────
+  if (!result.vex_encounter) {
+    const phintEl = makePhaseHint(result.state, _turnsInPhase);
+    if (phintEl) { if (focusMode) focusItems.push(phintEl); else output.appendChild(phintEl); }
+  }
+
+  // ── Turn divider + prompt hint ────────────────────────────────────────────────
+  const divider = Object.assign(document.createElement('div'), { className: 'turn-divider' });
+  const hint    = makePromptHint();
+
+  if (focusMode && focusItems.length > 0) {
+    focusItems.push(divider, hint);
+    startFocusQueue(focusItems);
+  } else {
+    output.appendChild(divider);
+    output.appendChild(hint);
+    scrollToBottom();
+  }
+
+  // ── Update reasoning panel ───────────────────────────────────────────────────
+  const iqQuery = result.knowledge_query || actionText || '';
+  if (iqQuery || result.knowledge_summary) {
+    renderIQSection(iqQuery, result.knowledge_summary || '', result.iq_mode || 'local', result.iq_relevant !== false);
+    const fileList = iqData.map(d => d.file).join(', ') || (result.iq_relevant === false ? 'NO MATCH' : 'world_overview.md');
+    addLog('iq', 'IQ', `Queried: "${iqQuery.slice(0,40)}" → ${fileList}`);
+  }
+  renderAgentsSection(result.agents_consulted || []);
+  renderDiceSection(result.dice_roll || null);
+  renderStatsSection(elapsedMs || 0, result.total_tokens ?? null);
+  if (result.state?.phase) renderPhaseProgress(result.state.phase);
+}
+
+// ── Actions ───────────────────────────────────────────────────────────────────
+async function sendAction() {
+  const text = playerInput.value.trim();
+  if (!text || isProcessing) return;
+
+  // ── Local command handlers (no server round-trip) ──────────────────────────
+  const textLower = text.toLowerCase().trim();
+
+  if (textLower === '/help') {
+    playerInput.value = '';
+    appendPlayerLine(text);
+    showHelpLocal();
+    output.appendChild(makePromptHint());
+    scrollToBottom();
+    addLog('system', null, '/help displayed');
+    playerInput.focus();
+    return;
+  }
+
+  const _localCmd = (handler) => {
+    playerInput.value = '';
+    appendPlayerLine(text);
+    handler();
+    output.appendChild(makePromptHint());
+    scrollToBottom();
+    addLog('system', null, `${textLower} executed`);
+    playerInput.focus();
+  };
+
+  if (textLower === '/focus') {
+    _localCmd(() => {
+      toggleFocusMode();
+      const div = document.createElement('div');
+      div.className = 'system-message success';
+      div.innerHTML = focusMode
+        ? '<strong>Focus mode ON.</strong> Sidebars hidden. Responses appear one at a time — press Enter or ↓ NEXT to advance.'
+        : '<strong>Focus mode OFF.</strong> Full layout restored.';
+      output.appendChild(div);
+    });
+    return;
+  }
+
+  if (textLower === '/zen') {
+    _localCmd(() => {
+      toggleZenMode();
+      const div = document.createElement('div');
+      div.className = 'system-message success';
+      div.innerHTML = zenMode
+        ? '<strong>Zen mode ON.</strong> Black background, white text, no animations, minimal chrome.'
+        : '<strong>Zen mode OFF.</strong> Full interface restored.';
+      output.appendChild(div);
+    });
+    return;
+  }
+
+  if (textLower === '/guide') {
+    _localCmd(() => {
+      toggleGuide();
+      const div = document.createElement('div');
+      div.className = 'system-message success';
+      div.innerHTML = guideMode
+        ? '<strong>Reading guide ON.</strong> A horizontal line follows your cursor to track reading position.'
+        : '<strong>Reading guide OFF.</strong>';
+      output.appendChild(div);
+    });
+    return;
+  }
+
+  if (textLower === '/brief') {
+    playerInput.value = '';
+    appendPlayerLine(text);
+    fetch('/api/brief', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: true }),
+    }).catch(() => {});
+    setResponseStyle('brief');
+    const briefEl = document.createElement('div');
+    briefEl.className = 'gm-narrative';
+    briefEl.setAttribute('role', 'status');
+    briefEl.innerHTML = `
+      <div class="gm-header" aria-hidden="true">
+        <span class="gm-label">[GHOST]</span>
+        <span class="gm-sep"></span>
+      </div>
+      <div class="gm-body">Brief mode activated. Comms tight, runner.</div>`;
+    output.appendChild(briefEl);
+    output.appendChild(makePromptHint());
+    scrollToBottom();
+    addLog('system', null, '/brief — brief mode activated');
+    srAnnounce('Brief mode activated. Agent responses limited to 3 sentences.', 'polite');
+    playerInput.focus();
+    return;
+  }
+
+  if (textLower === '/normal') {
+    _localCmd(() => {
+      setResponseStyle('normal');
+      fetch('/api/brief', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: false }),
+      }).catch(() => {});
+      const div = document.createElement('div');
+      div.className = 'system-message success';
+      div.innerHTML = '<strong>Normal response length</strong> restored.';
+      output.appendChild(div);
+    });
+    return;
+  }
+
+  if (textLower === '/detailed') {
+    _localCmd(() => {
+      setResponseStyle('detailed');
+      const div = document.createElement('div');
+      div.className = 'system-message success';
+      div.innerHTML = '<strong>Detailed mode.</strong> Agents will give full rich responses. Saved for this session.';
+      output.appendChild(div);
+    });
+    return;
+  }
+
+  if (textLower === '/skip') {
+    playerInput.value = '';
+    appendPlayerLine(text);
+    if (pendingVexEncounter) {
+      skipVexEncounter();
+    } else {
+      const div = document.createElement('div');
+      div.className = 'system-message';
+      div.textContent = 'Nothing to skip right now.';
+      output.appendChild(div);
+      output.appendChild(makePromptHint());
+      scrollToBottom();
+    }
+    addLog('system', null, '/skip command');
+    playerInput.focus();
+    return;
+  }
+
+  if (textLower === '/pause') {
+    playerInput.value = '';
+    appendPlayerLine(text);
+    activatePause();
+    return;
+  }
+
+  if (textLower === '/resume') {
+    playerInput.value = '';
+    if (isPaused) {
+      resumeFromPause();
+    } else {
+      const div = document.createElement('div');
+      div.className = 'system-message';
+      div.textContent = 'Mission is not paused.';
+      output.appendChild(div);
+      output.appendChild(makePromptHint());
+      scrollToBottom();
+    }
+    addLog('system', null, '/resume command');
+    playerInput.focus();
+    return;
+  }
+
+  if (textLower === '/quit') {
+    playerInput.value = '';
+    appendPlayerLine(text);
+    activateQuit();
+    return;
+  }
+
+  // Block all other actions while paused
+  if (isPaused) {
+    srAnnounce('Mission is paused. Click Resume Mission or type /resume to continue.', 'polite');
+    playerInput.value = '';
+    return;
+  }
+
+  // Save to command history
+  if (text !== cmdHistory[cmdHistory.length - 1]) {
+    cmdHistory.push(text);
+    if (cmdHistory.length > 50) cmdHistory.shift();
+  }
+  historyIdx    = -1;
+  savedInputVal = '';
+
+  setProcessing(true);
+  playerInput.value = '';
+  appendPlayerLine(text);
+  const procEl = appendProcessing();
+  addLog('player', null, text.slice(0, 60));
+  srAnnounce('Sending action to crew…', 'polite');
+
+  const startTime = Date.now();
+  try {
+    const resp   = await fetch('/api/action', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ input: text, response_style: responseStyle }),
+    });
+    const result    = await resp.json();
+    const elapsedMs = Date.now() - startTime;
+
+    // Track turns per phase before renderResult (currentPhase is still the OLD phase here)
+    if (result.state) {
+      if (result.state.phase === currentPhase) { _turnsInPhase++; }
+      else { _turnsInPhase = 0; }
+    }
+
+    procEl.remove();
+    renderResult(result, text, elapsedMs);
+
+    if (result.state) {
+      const s = result.state;
+      phaseBadge.textContent  = s.phase.toUpperCase();
+      phaseBadge.setAttribute('aria-label', `Current heist phase: ${s.phase}`);
+      setAlertBadge(s.alert_state);
+      turnCounter.textContent = `TURN ${s.turn_count}`;
+      updateSidebar(s);
+      currentPhase = s.phase;
+    }
+  } catch (err) {
+    procEl.remove();
+    const errDiv = document.createElement('div');
+    errDiv.className = 'system-message error';
+    errDiv.setAttribute('role', 'alert');
+    errDiv.textContent = `Network error: ${err.message}`;
+    output.appendChild(errDiv);
+    addLog('system', null, `Network error: ${err.message}`);
+    srAnnounce(`Network error: ${err.message}`, 'assertive');
+    scrollToBottom();
+  } finally {
+    setProcessing(false);
+    playerInput.focus();
+  }
+}
+
+async function newSession() {
+  if (!confirm('Start a new game session? Current progress will be saved in the database.')) return;
+  try {
+    await fetch('/api/new_session', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ mission: 'Operation GENESIS' }),
+    });
+    location.reload();
+  } catch (e) {
+    alert('Failed to start new session: ' + e.message);
+  }
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+function setProcessing(val) {
+  isProcessing = val;
+  sendBtn.disabled      = val;
+  playerInput.disabled  = val;
+  sendBtn.setAttribute('aria-busy', String(val));
+}
+
+function scrollToBottom() {
+  const reduced = document.body.classList.contains('reduce-motion');
+  requestAnimationFrame(() => {
+    output.scrollTo({ top: output.scrollHeight, behavior: reduced ? 'auto' : 'smooth' });
+  });
+}
+
+function extractIQData(summary) {
+  if (!summary) return [];
+  const headerRe = /=== \[([A-Z0-9_]+) INTEL\] ===/g;
+  const headers = [];
+  let m;
+  while ((m = headerRe.exec(summary)) !== null) {
+    headers.push({ key: m[1], end: m.index + m[0].length });
+  }
+  return headers.map((h, i) => {
+    const baseKey = h.key.replace(/_\d+$/, '');
+    const file = SOURCE_FILES[baseKey] || (baseKey.toLowerCase().replace(/_/g, '') + '.md');
+    const bodyEnd = i + 1 < headers.length ? headers[i + 1].end - 30 : summary.length;
+    const body = summary.slice(h.end, bodyEnd).trim();
+    const snippet = body.split('\n')
+      .map(l => l.replace(/^#+\s*/, '').trim())
+      .find(l => l.length > 15) || body.slice(0, 80);
+    return { key: h.key, file, snippet: (snippet || '').slice(0, 90) };
+  });
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/\n/g, '<br>');
+}
+
+// Renders agent text with optional [FOUNDRY IQ] provenance markers styled inline.
+// escapes HTML first, then replaces [FOUNDRY IQ] prefix with styled spans.
+function renderAgentText(text) {
+  const escaped = escHtml(text);
+  if (!escaped.includes('[FOUNDRY IQ]')) return escaped;
+  return escaped.replace(/\[FOUNDRY IQ\] (.*?)(?=\[FOUNDRY IQ\]|$)/gs, (_, body) => {
+    // Style up to (and including) the first sentence-ending punctuation followed by
+    // a space, <br>, or end-of-string. If none found, style the whole body.
+    const sentEnd = body.search(/[.!?](?=[ \t]|<br>|$)/);
+    if (sentEnd >= 0) {
+      return (
+        '<span class="iq-marker">[FOUNDRY IQ]</span> ' +
+        `<span class="iq-grounded-text">${body.slice(0, sentEnd + 1)}</span>` +
+        body.slice(sentEnd + 1)
+      );
+    }
+    return `<span class="iq-marker">[FOUNDRY IQ]</span> <span class="iq-grounded-text">${body}</span>`;
+  });
+}
+
+// ── Vex Encounter Modal ───────────────────────────────────────────────────────
+let _vexEncounter  = null;
+let _vexLastFocus  = null;
+
+function showVexModal(encounter) {
+  _vexEncounter = encounter;
+  _vexLastFocus = document.activeElement;
+
+  document.getElementById('vexGhostText').textContent  = encounter.ghost_announcement || '';
+  document.getElementById('vexOfferText').textContent  = encounter.vex_response       || '';
+  document.getElementById('vexPatchText').textContent  = encounter.patch_assessment   || '';
+
+  document.getElementById('vexPatchWrap').style.display = 'none';
+  ['A', 'B', 'C'].forEach(c => { document.getElementById(`vexChoice${c}`).disabled = false; });
+
+  const overlay = document.getElementById('vexOverlay');
+  overlay.style.display = 'flex';
+
+  // Focus first choice button after layout paint
+  setTimeout(() => { document.getElementById('vexChoiceA').focus(); }, 80);
+
+  srAnnounce(
+    'Critical decision: Vex has interrupted the heist. Choose A to accept her offer, B to reject, or C to consult Patch first.',
+    'assertive'
+  );
+  addLog('agent', 'Vex', 'ENCOUNTER — heist interrupted. Make your call.');
+}
+
+function hideVexModal() {
+  document.getElementById('vexOverlay').style.display = 'none';
+  _vexEncounter = null;
+  if (_vexLastFocus) _vexLastFocus.focus();
+}
+
+async function resolveVexChoice(choice) {
+  if (choice === 'C') {
+    document.getElementById('vexPatchWrap').style.display = 'block';
+    document.getElementById('vexChoiceC').disabled = true;
+    addLog('agent', 'Patch', 'Ethical assessment revealed');
+    srAnnounce("Patch's ethical assessment revealed. Choose A to accept or B to reject.", 'polite');
+    return;
+  }
+
+  ['A', 'B', 'C'].forEach(c => { document.getElementById(`vexChoice${c}`).disabled = true; });
+
+  try {
+    const resp   = await fetch('/api/vex_choice', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ choice }),
+    });
+    const result = await resp.json();
+
+    hideVexModal();
+
+    if (result.narrative) {
+      const el = document.createElement('div');
+      el.className = 'gm-narrative';
+      el.setAttribute('role', 'article');
+      el.setAttribute('aria-label', `Ghost says: ${result.narrative.slice(0, 120)}`);
+      el.innerHTML = `
+        <div class="gm-header" aria-hidden="true">
+          <span class="gm-label">[GHOST]</span>
+          <span class="gm-sep"></span>
+        </div>
+        <div class="gm-body">${escHtml(result.narrative)}</div>`;
+      output.appendChild(el);
+      const label = choice === 'A' ? 'ACCEPTED' : 'REJECTED';
+      addLog('agent', 'Vex', `Deal ${label} — flags updated, crew dynamics shifted`);
+      srAnnounce(`Vex's offer ${label.toLowerCase()}. Ghost narrates the consequence.`, 'polite');
+    }
+
+    output.appendChild(makePromptHint());
+    output.appendChild(Object.assign(document.createElement('div'), { className: 'turn-divider' }));
+    scrollToBottom();
+
+    if (result.state) {
+      const s = result.state;
+      phaseBadge.textContent  = s.phase.toUpperCase();
+      phaseBadge.setAttribute('aria-label', `Current heist phase: ${s.phase}`);
+      setAlertBadge(s.alert_state);
+      turnCounter.textContent = `TURN ${s.turn_count}`;
+      updateSidebar(s);
+      currentPhase = s.phase;
+    }
+  } catch (err) {
+    ['A', 'B'].forEach(c => { document.getElementById(`vexChoice${c}`).disabled = false; });
+    addLog('system', null, `Vex choice error: ${err.message}`);
+    srAnnounce('Error submitting choice. Please try again.', 'assertive');
+  }
+}
+
+// Vex modal focus trap
+document.getElementById('vexOverlay').addEventListener('keydown', e => {
+  if (e.key !== 'Tab') return;
+  const focusable = [...document.getElementById('vexOverlay').querySelectorAll('button:not(:disabled)')];
+  if (!focusable.length) return;
+  const first = focusable[0], last = focusable[focusable.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+});
+
+// ── Event Listeners ───────────────────────────────────────────────────────────
+
+// Submit
+sendBtn.addEventListener('click', sendAction);
+
+// Input idle pulse — breathe when empty
+playerInput.classList.add('input-idle');
+playerInput.addEventListener('input', () => {
+  playerInput.classList.toggle('input-idle', playerInput.value.length === 0);
+});
+
+// Input keyboard: Enter, Escape, Arrow history
+playerInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    // Advance Vex pre-warning if active and input is empty
+    if (pendingVexEncounter && !playerInput.value.trim()) {
+      continueFromVexPreWarning();
+      return;
+    }
+    // Advance focus queue if active and input is empty
+    if (focusMode && focusQueue.length > 0 && !playerInput.value.trim()) {
+      showNextFocusItem();
+      return;
+    }
+    sendAction();
+  } else if (e.key === 'Escape') {
+    e.preventDefault();
+    playerInput.value = '';
+    historyIdx    = -1;
+    savedInputVal = '';
+    srAnnounce('Input cleared', 'polite');
+  } else if (e.key === 'ArrowUp') {
+    if (!cmdHistory.length) return;
+    e.preventDefault();
+    if (historyIdx === -1) { savedInputVal = playerInput.value; historyIdx = cmdHistory.length - 1; }
+    else if (historyIdx > 0) historyIdx--;
+    playerInput.value = cmdHistory[historyIdx];
+    playerInput.setSelectionRange(playerInput.value.length, playerInput.value.length);
+  } else if (e.key === 'ArrowDown') {
+    if (historyIdx === -1) return;
+    e.preventDefault();
+    if (historyIdx < cmdHistory.length - 1) {
+      historyIdx++;
+      playerInput.value = cmdHistory[historyIdx];
+    } else {
+      historyIdx = -1;
+      playerInput.value = savedInputVal;
+    }
+    playerInput.setSelectionRange(playerInput.value.length, playerInput.value.length);
+  }
+});
+
+// Global keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+    e.preventDefault();
+    if (kbOverlay.hasAttribute('hidden')) openKbHelp(); else closeKbHelp();
+  }
+});
+
+// New session
+newSessionBtn.addEventListener('click', newSession);
+
+// Vex choices
+document.getElementById('vexChoiceA').addEventListener('click', () => resolveVexChoice('A'));
+document.getElementById('vexChoiceB').addEventListener('click', () => resolveVexChoice('B'));
+document.getElementById('vexChoiceC').addEventListener('click', () => resolveVexChoice('C'));
+
+// ── Display menu dropdown ────────────────────────────────────────────────────
+(function () {
+  const menuBtn   = document.getElementById('displayMenuBtn');
+  const menuPanel = document.getElementById('displayMenuPanel');
+
+  function openMenu() {
+    menuPanel.hidden = false;
+    menuBtn.setAttribute('aria-expanded', 'true');
+    menuPanel.querySelector('.dm-chk, .dm-font-btn, .dm-cycle-btn, .dm-link') &&
+      menuPanel.querySelector('.dm-chk, .dm-font-btn, .dm-cycle-btn, .dm-link').focus();
+  }
+  function closeMenu() {
+    menuPanel.hidden = true;
+    menuBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  menuBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    menuPanel.hidden ? openMenu() : closeMenu();
+  });
+
+  // Close on outside click or Escape
+  document.addEventListener('click', e => {
+    if (!menuPanel.hidden && !menuPanel.contains(e.target) && e.target !== menuBtn) closeMenu();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !menuPanel.hidden) { closeMenu(); menuBtn.focus(); }
+  });
+
+  // High contrast checkbox
+  const hcChk = document.getElementById('highContrastChk');
+  hcChk.addEventListener('change', () => {
+    toggleHighContrast(hcChk.checked);
+    srAnnounce(`High contrast mode ${hcChk.checked ? 'enabled' : 'disabled'}`, 'polite');
+  });
+
+  // Font size buttons (already wired by ID below, but also update the label)
+  document.getElementById('fontSizeIncBtn').addEventListener('click', increaseFontSize);
+  document.getElementById('fontSizeDecBtn').addEventListener('click', decreaseFontSize);
+
+  // Reduce motion checkbox
+  const rmChk = document.getElementById('reduceMotionChk');
+  rmChk.addEventListener('change', () => {
+    toggleReduceMotion(rmChk.checked);
+    srAnnounce(`Reduce motion ${rmChk.checked ? 'enabled' : 'disabled'}`, 'polite');
+  });
+
+  // Simple mode checkbox
+  const smChk = document.getElementById('simpleModeChk');
+  smChk.addEventListener('change', () => {
+    toggleSimpleMode(smChk.checked);
+    srAnnounce(`Simple mode ${smChk.checked ? 'enabled' : 'disabled'}`, 'polite');
+  });
+
+  // Keep hidden proxy buttons in sync (toggleHighContrast etc. still target them)
+  // Patch toggle functions to also sync checkboxes
+  const _origHC = toggleHighContrast;
+  toggleHighContrast = function(on, save) {
+    _origHC(on, save);
+    hcChk.checked = on;
+  };
+  const _origRM = toggleReduceMotion;
+  toggleReduceMotion = function(on, save) {
+    _origRM(on, save);
+    rmChk.checked = on;
+  };
+  const _origSM = toggleSimpleMode;
+  toggleSimpleMode = function(on, save) {
+    _origSM(on, save);
+    smChk.checked = on;
+  };
+})();
+
+document.getElementById('openKbHelp').addEventListener('click', openKbHelp);
+document.getElementById('closeKbHelp').addEventListener('click', closeKbHelp);
+
+// Response length cycling button
+document.getElementById('responseLengthBtn').addEventListener('click', cycleResponseStyle);
+
+// Content advisory buttons
+document.getElementById('caBeginBtn').addEventListener('click', dismissContentAdvisory);
+document.getElementById('caLearnBtn').addEventListener('click', () => {
+  window.open('/accessibility', '_blank', 'noopener noreferrer');
+});
+document.getElementById('caSettingsBtn').addEventListener('click', () => {
+  dismissContentAdvisory();
+  setTimeout(openKbHelp, 80);
+});
+
+// Crew drawer toggle (mobile)
+(function () {
+  const toggleBtn = document.getElementById('crewToggleBtn');
+  const backdrop  = document.getElementById('crewDrawerBackdrop');
+  const sidebar   = document.getElementById('sidebar');
+  function openDrawer() {
+    sidebar.classList.add('drawer-open');
+    backdrop.classList.add('visible');
+    toggleBtn.setAttribute('aria-expanded', 'true');
+    toggleBtn.textContent = '[CLOSE]';
+  }
+  function closeDrawer() {
+    sidebar.classList.remove('drawer-open');
+    backdrop.classList.remove('visible');
+    toggleBtn.setAttribute('aria-expanded', 'false');
+    toggleBtn.textContent = '[CREW]';
+  }
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.contains('drawer-open') ? closeDrawer() : openDrawer();
+    });
+  }
+  if (backdrop) {
+    backdrop.addEventListener('click', closeDrawer);
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && sidebar && sidebar.classList.contains('drawer-open')) closeDrawer();
+  });
+})();
+
+// Pause overlay Resume button
+document.getElementById('pauseResumeBtn').addEventListener('click', resumeFromPause);
+
+// Quit overlay Return button
+document.getElementById('quitReturnBtn').addEventListener('click', returnFromQuit);
+
+// ── Scroll-to-bottom floating button ─────────────────────────────────────────
+(function () {
+  const btn = document.getElementById('scrollToBottomBtn');
+  if (!btn) return;
+
+  output.addEventListener('scroll', () => {
+    const distFromBottom = output.scrollHeight - output.scrollTop - output.clientHeight;
+    btn.classList.toggle('visible', distFromBottom > 150);
+  }, { passive: true });
+
+  btn.addEventListener('click', () => {
+    const reduced = document.body.classList.contains('reduce-motion');
+    output.scrollTo({ top: output.scrollHeight, behavior: reduced ? 'auto' : 'smooth' });
+    btn.classList.remove('visible');
+    playerInput.focus();
+  });
+})();
+
+// Enter key on content advisory dismisses it (when advisory is visible and input is empty)
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && advisoryShown) {
+    e.preventDefault();
+    dismissContentAdvisory();
+  }
+});
+
+// Reading guide — update line position on mouse move (throttled via rAF)
+const _guideLine = document.getElementById('readingGuideLine');
+let   _guideRaf  = null;
+document.addEventListener('mousemove', e => {
+  if (!guideMode) return;
+  if (_guideRaf) return;
+  _guideRaf = requestAnimationFrame(() => {
+    _guideLine.style.top = `${e.clientY}px`;
+    _guideRaf = null;
+  });
+});
+
+// ── JS Tooltip for flag-name abbreviations ────────────────────────────────────
+(function () {
+  const tip = document.getElementById('gpTooltip');
+  if (!tip) return;
+
+  let hideTimer = null;
+
+  function showTip(text, targetEl) {
+    clearTimeout(hideTimer);
+    tip.textContent = text;
+    tip.removeAttribute('aria-hidden');
+    tip.classList.add('visible');
+
+    // Position: to the right of the target, vertically centered
+    const rect = targetEl.getBoundingClientRect();
+    const tipRect = tip.getBoundingClientRect();
+    let left = rect.right + 8;
+    let top  = rect.top + (rect.height / 2) - (tipRect.height / 2);
+
+    // Keep within viewport
+    if (left + tipRect.width > window.innerWidth - 8) {
+      left = rect.left - tipRect.width - 8;
+    }
+    if (top < 4) top = 4;
+    if (top + tipRect.height > window.innerHeight - 4) top = window.innerHeight - tipRect.height - 4;
+
+    tip.style.left = `${left + window.scrollX}px`;
+    tip.style.top  = `${top  + window.scrollY}px`;
+  }
+
+  function hideTip() {
+    hideTimer = setTimeout(() => {
+      tip.classList.remove('visible');
+      tip.setAttribute('aria-hidden', 'true');
+    }, 80);
+  }
+
+  // Event delegation on #worldFlags for .flag-name[title] elements
+  const worldFlagsEl2 = document.getElementById('worldFlags');
+  if (worldFlagsEl2) {
+    worldFlagsEl2.addEventListener('mouseenter', e => {
+      const el = e.target.closest('.flag-name[title]');
+      if (el && el.title) showTip(el.title, el);
+    }, true);
+    worldFlagsEl2.addEventListener('mouseleave', e => {
+      const el = e.target.closest('.flag-name[title]');
+      if (el) hideTip();
+    }, true);
+  }
+
+  // Also hide if mouse leaves the tooltip itself
+  tip.addEventListener('mouseenter', () => clearTimeout(hideTimer));
+  tip.addEventListener('mouseleave', hideTip);
+})();
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+init();
+</script>
+<!-- Shared JS tooltip (replaces CSS ::after tooltip for flag names) -->
+<div id="gpTooltip" class="gp-tooltip" role="tooltip" aria-hidden="true"></div>
+</body>
+</html>
